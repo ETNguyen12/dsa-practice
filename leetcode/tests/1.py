@@ -1,19 +1,8 @@
 import unittest
-
-class Solution():
-    def twoSum(self, nums, target):
-        """
-        :type nums: List[int]
-        :type target: int
-        :rtype: List[int]
-        """
-        hashmap = {}
-        for i, num in enumerate(nums):
-            if target - num in hashmap:
-                return [hashmap[target - num], i]
-            hashmap[num] = i
-
-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from _1_two_sum import Solution
 
 class TestSolution(unittest.TestCase):
     def test1(self):

@@ -1,23 +1,8 @@
 import unittest
-
-class Solution(object):
-    def isValid(self, s):
-        """
-        :type s: str
-        :rtype: bool
-        """
-        stack = []
-        mapping = {')': '(', '}': '{', ']': '['}
-        for c in s:
-            if c in mapping:
-                popped = stack.pop() if stack else ' '
-                if mapping[c] != popped:
-                    return False
-            else:
-                stack.append(c)
-        return not stack
-            
-        
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from _20_valid_parentheses import Solution
 
 class TestSolution(unittest.TestCase):
     def test1(self):
