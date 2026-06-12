@@ -1,26 +1,18 @@
-import time, os
-
 """
-DRILL FILE — fill in each function from memory, then run:  python drills.py
+06-11-2026 — DSA drills.  Fill in each function from memory, then click Run.
+The test runner + timer live in start.py; you only edit the functions below.
 
-Rules:
-  1. Do NOT open reference.py until you've been stuck >90 seconds.
-  2. When you peek, read only until it clicks, close it, and retype the
-     WHOLE function from the top — not just the line you forgot.
-  3. Track your score (printed at the bottom) every morning.
-
-Goal: all 10 passing, cold, no peeks, in under ~13 minutes total.
+  1. No reference.py until you've been stuck >90 seconds.
+  2. On a peek, read till it clicks, then retype the WHOLE function from the top.
 """
 
+import os, sys
 from collections import deque
 import heapq
 
-
-# --- shared types -----------------------------------------------------------
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
+# start.py sits in this same folder; make it importable, then pull the runner
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from start import run_drills, ListNode
 
 
 # ============================================================================
@@ -56,7 +48,7 @@ def has_cycle(head):
     while fast and fast.next:
         slow = slow.next
         fast = fast.next.next
-        if slow is fast:
+        if slow == fast:
             return True
     return False
 
@@ -70,7 +62,7 @@ def bfs(graph, start):
     visited = {start}
     q = deque([start])
     order = []
-
+    
     while q:
         node = q.popleft()
         order.append(node)
@@ -85,16 +77,16 @@ def bfs(graph, start):
 # 5a. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    visited =set()
+    visited = set()
     order = []
 
     def go(node: ListNode) -> None:
-        order.append(node)
         visited.add(node)
+        order.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 go(neighbor)
-    
+
     go(start)
     return order
 
@@ -116,7 +108,6 @@ def dfs_iterative(graph, start):
         visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
-    
     return order
 
 
@@ -137,7 +128,7 @@ def top_k(nums, k):
 #    or -1 if not present.
 # ============================================================================
 def binary_search(nums, target):
-    lo, hi = 0, len(nums)-1
+    lo, hi = 0, len(nums) -1
     while lo <= hi:
         mid = (lo + hi) // 2
         if nums[mid] == target:
@@ -158,10 +149,10 @@ def lower_bound(nums, target):
     lo, hi = 0, len(nums)
     while lo < hi:
         mid = (lo + hi) // 2
-        if nums[mid] < target:
-            lo = mid + 1
-        else:
+        if nums[mid] >= target:
             hi = mid
+        else:
+            lo = mid + 1
     return lo
 
 
@@ -186,6 +177,7 @@ def longest_unique_substring(s):
     seen = set()
     left = 0
     best = 0
+
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -195,168 +187,5 @@ def longest_unique_substring(s):
     return best
 
 
-
-# ============================================================================
-# TEST RUNNER — don't edit below this line
-# ============================================================================
-def _build(vals):
-    dummy = ListNode()
-    cur = dummy
-    for v in vals:
-        cur.next = ListNode(v)
-        cur = cur.next
-    return dummy.next
-
-
-def _to_list(head):
-    out = []
-    while head:
-        out.append(head.val)
-        head = head.next
-    return out
-
-_START_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".drill_start")
-
-def _fmt(secs):
-    m, s = divmod(int(secs), 60)
-    return f"{m}m {s:02d}s"
-
-def _start_clock():
-    """Returns (start_time, is_fresh). Creates the file on the first run of a session."""
-    if os.path.exists(_START_FILE):
-        with open(_START_FILE) as f:
-            return float(f.read().strip()), False
-    now = time.time()
-    with open(_START_FILE, "w") as f:
-        f.write(repr(now))
-    return now, True
-
-def _run():
-    results = []
-
-    # 1. reverse
-    try:
-        ok = (_to_list(reverse_list(_build([1, 2, 3, 4, 5]))) == [5, 4, 3, 2, 1]
-              and _to_list(reverse_list(_build([]))) == []
-              and _to_list(reverse_list(_build([1]))) == [1])
-        results.append(("reverse_list", ok))
-    except Exception as e:
-        results.append(("reverse_list", f"crashed: {e}"))
-
-    # 2. find_middle
-    try:
-        ok = (find_middle(_build([1, 2, 3, 4, 5])).val == 3
-              and find_middle(_build([1, 2, 3, 4])).val == 3)
-        results.append(("find_middle", ok))
-    except Exception as e:
-        results.append(("find_middle", f"crashed: {e}"))
-
-    # 3. has_cycle
-    try:
-        a = ListNode(1); b = ListNode(2); c = ListNode(3)
-        a.next = b; b.next = c; c.next = a            # cycle
-        ok = has_cycle(a) is True and has_cycle(_build([1, 2, 3])) is False
-        results.append(("has_cycle", ok))
-    except Exception as e:
-        results.append(("has_cycle", f"crashed: {e}"))
-
-    g = {0: [1, 2], 1: [0, 3], 2: [0, 3], 3: [1, 2]}
-
-    # 4. bfs
-    try:
-        ok = bfs(g, 0) == [0, 1, 2, 3]
-        results.append(("bfs", ok))
-    except Exception as e:
-        results.append(("bfs", f"crashed: {e}"))
-
-    # 5a. dfs_recursive  (0 -> 1 -> 3 -> 2)
-    try:
-        ok = dfs_recursive(g, 0) == [0, 1, 3, 2]
-        results.append(("dfs_recursive", ok))
-    except Exception as e:
-        results.append(("dfs_recursive", f"crashed: {e}"))
-
-    # 5b. dfs_iterative — stack reverses neighbor order (0 -> 2 -> 3 -> 1)
-    try:
-        ok = dfs_iterative(g, 0) == [0, 2, 3, 1]
-        results.append(("dfs_iterative", ok))
-    except Exception as e:
-        results.append(("dfs_iterative", f"crashed: {e}"))
-
-    # 6. top_k
-    try:
-        ok = (top_k([3, 1, 8, 2, 9, 4], 3) == [9, 8, 4]
-              and top_k([5], 1) == [5])
-        results.append(("top_k", ok))
-    except Exception as e:
-        results.append(("top_k", f"crashed: {e}"))
-
-    # 7. binary_search
-    try:
-        ok = (binary_search([1, 3, 5, 7, 9], 7) == 3
-              and binary_search([1, 3, 5, 7, 9], 1) == 0
-              and binary_search([1, 3, 5, 7, 9], 9) == 4
-              and binary_search([1, 3, 5, 7, 9], 4) == -1
-              and binary_search([], 1) == -1)
-        results.append(("binary_search", ok))
-    except Exception as e:
-        results.append(("binary_search", f"crashed: {e}"))
-
-    # 8. lower_bound
-    try:
-        ok = (lower_bound([1, 3, 3, 5], 3) == 1
-              and lower_bound([1, 3, 3, 5], 4) == 3
-              and lower_bound([1, 3, 3, 5], 6) == 4
-              and lower_bound([1, 3, 3, 5], 0) == 0)
-        results.append(("lower_bound", ok))
-    except Exception as e:
-        results.append(("lower_bound", f"crashed: {e}"))
-
-    # 9. max_window_sum
-    try:
-        ok = (max_window_sum([2, 1, 5, 1, 3, 2], 3) == 9
-              and max_window_sum([1, 2, 3], 3) == 6
-              and max_window_sum([4], 1) == 4)
-        results.append(("max_window_sum", ok))
-    except Exception as e:
-        results.append(("max_window_sum", f"crashed: {e}"))
-
-    # 10. longest_unique_substring
-    try:
-        ok = (longest_unique_substring("abcabcbb") == 3
-              and longest_unique_substring("bbbbb") == 1
-              and longest_unique_substring("pwwkew") == 3
-              and longest_unique_substring("") == 0)
-        results.append(("longest_unique_substring", ok))
-    except Exception as e:
-        results.append(("longest_unique_substring", f"crashed: {e}"))
-
-    start, fresh = _start_clock()
-    elapsed = time.time() - start
-
-    print("\n" + "=" * 40)
-    passed = 0
-    for name, res in results:
-        if res is True:
-            print(f"  PASS   {name}")
-            passed += 1
-        elif res is False:
-            print(f"  FAIL   {name}  (wrong output)")
-        else:
-            print(f"  ERROR  {name}  ({res})")
-    print("=" * 40)
-    print(f"  SCORE: {passed}/{len(results)} cold")
-
-    if passed == len(results):
-        if fresh:
-            print("  TIME:  timer only started this run — code from the stubs to clock a real session")
-        else:
-            print(f"  TIME:  {_fmt(elapsed)}   (target: under 13m)")
-        os.remove(_START_FILE)          # reset so the next session starts fresh
-    else:
-        print(f"  ELAPSED: {_fmt(elapsed)} so far")
-    print("=" * 40 + "\n")
-
-
 if __name__ == "__main__":
-    _run()
+    run_drills(globals())

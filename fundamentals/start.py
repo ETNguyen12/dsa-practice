@@ -1,38 +1,38 @@
 """
-DRILL FILE — fill in each function from memory, then run:  python drills.py
+DRILL GENERATOR + SHARED TEST RUNNER
 
-Rules:
-  1. Do NOT open reference.py until you've been stuck >90 seconds.
-  2. When you peek, read only until it clicks, close it, and retype the
-     WHOLE function from the top — not just the line you forgot.
-  3. Track your score (printed at the bottom) every morning.
+Daily workflow:
+  1. Run THIS file each morning:   python start.py
+     -> stamps a fresh MM-DD-YYYY.py (just the stubs) beside start.py and
+        opens it. Yesterday's file is KEPT as a reference for now.
+     -> running start.py does NOT start any timer.
+  2. In that dated file, fill in the functions and click Run.
+     The clock starts on that first run. Re-run to check + see elapsed time.
+  3. The moment you score 11/11 with a real time, the previous day's file is
+     deleted automatically — so you keep your last good file until you've
+     re-earned a full clear on the new one, then drop back to one file.
 
-Goal: all 10 passing, cold, no peeks, in under ~13 minutes total.
+Keep start.py where it is; the daily file sits beside it and imports from it.
 """
 
+import time, os
 from collections import deque
 import heapq
 
 
-# --- shared types -----------------------------------------------------------
+# --- shared types (imported by daily files) ---------------------------------
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
 
 
+# >>> STUBS START (the stamper copies everything between these two markers) >>>
 # ============================================================================
 # 1. Reverse a linked list. Return the new head.
 # ============================================================================
 def reverse_list(head):
-    prev = None
-    curr = head
-    while curr:
-        nxt = curr.next
-        curr.next = prev
-        prev = curr
-        curr = nxt
-    return prev
+    pass
 
 
 # ============================================================================
@@ -40,24 +40,14 @@ def reverse_list(head):
 #    Use fast/slow pointers.
 # ============================================================================
 def find_middle(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-    return slow
+    pass
 
 
 # ============================================================================
 # 3. Detect a cycle in a linked list. Return True/False. Fast/slow pointers.
 # ============================================================================
 def has_cycle(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-        if slow is fast:
-            return True
-    return False
+    pass
 
 
 # ============================================================================
@@ -66,35 +56,14 @@ def has_cycle(head):
 #    from `start`. Visit neighbors in the order they appear in the list.
 # ============================================================================
 def bfs(graph, start):
-    visited = {start}
-    q = deque([start])
-    order = []
-    while q:
-        node = q.popleft()
-        order.append(node)
-        for neighbor in graph[node]:
-            if neighbor not in visited:
-                visited.add(neighbor)
-                q.append(neighbor)
-    return order
+    pass
 
 
 # ============================================================================
 # 5a. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    visited = set()
-    order = []
-
-    def go(node: ListNode) -> None:
-        order.append(node)
-        visited.add(node)
-        for neighbor in graph[node]:
-            if neighbor not in visited:
-                go(neighbor)
-    
-    go(start)
-    return order
+    pass
 
 
 # ============================================================================
@@ -102,33 +71,14 @@ def dfs_recursive(graph, start):
 #     (Order can differ from the recursive version — see the test.)
 # ============================================================================
 def dfs_iterative(graph, start):
-    visited = set()
-    s = [start]
-    order = []
-
-    while s:
-        node = s.pop()
-        if node in visited:
-            continue
-        order.append(node)
-        visited.add(node)
-        for neighbor in graph[node]:
-            s.append(neighbor)
-    return order
-
-
+    pass
 
 
 # ============================================================================
 # 6. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    h = []
-    for num in nums:
-        heapq.heappush(h, num)
-        if len(h) > k:
-            heapq.heappop(h)
-    return sorted(h, reverse=True)
+    pass
 
 
 # ============================================================================
@@ -136,16 +86,7 @@ def top_k(nums, k):
 #    or -1 if not present.
 # ============================================================================
 def binary_search(nums, target):
-    lo, hi = 0, len(nums)-1
-    while lo <= hi:
-        mid = (lo + hi) // 2
-        if nums[mid] == target:
-            return mid
-        elif nums[mid] > target:
-            hi = mid - 1
-        else:
-            lo = mid + 1
-    return -1
+    pass
 
 
 # ============================================================================
@@ -154,14 +95,7 @@ def binary_search(nums, target):
 #    valid spot). For nums=[1,3,3,5], target=3 -> 1. target=4 -> 3. target=6 -> 4.
 # ============================================================================
 def lower_bound(nums, target):
-    lo, hi = 0, len(nums)
-    while lo < hi:
-        mid = (lo + hi) // 2
-        if nums[mid] < target:
-            lo = mid + 1
-        else:
-            hi = mid
-    return lo
+    pass
 
 
 # ============================================================================
@@ -169,12 +103,7 @@ def lower_bound(nums, target):
 #    Assume 1 <= k <= len(nums). Do it in one pass (slide, don't re-sum).
 # ============================================================================
 def max_window_sum(nums, k):
-    window = sum(nums[:k])
-    best = window
-    for i in range(k, len(nums)):
-        window += nums[i] - nums[i-k]
-        best = max(best, window)
-    return best
+    pass
 
 
 # ============================================================================
@@ -182,20 +111,12 @@ def max_window_sum(nums, k):
 #     `s` with no repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
-    left = 0
-    best = 0
-    for right in range(len(s)):
-        while s[right] in seen:
-            seen.remove(s[left])
-            left += 1
-        seen.add(s[right])
-        best = max(best, right - left + 1)
-    return best
+    pass
+# <<< STUBS END <<<
 
 
 # ============================================================================
-# TEST RUNNER — don't edit below this line
+# SHARED TEST RUNNER  — imported and called by each daily file
 # ============================================================================
 def _build(vals):
     dummy = ListNode()
@@ -214,7 +135,54 @@ def _to_list(head):
     return out
 
 
-def _run():
+def _fmt(secs):
+    m, s = divmod(int(secs), 60)
+    return f"{m}m {s:02d}s"
+
+
+def _sweep_others(current_file):
+    """Delete every drill file except `current_file` (and their .start markers).
+    Called only after a full-score, real-time run, so your last good file lives
+    on as a reference until you've re-earned 11/11."""
+    import re
+    folder = os.path.dirname(os.path.abspath(current_file))
+    keep = os.path.basename(current_file)
+    daily_re = re.compile(r"^\d{2}-\d{2}-\d{4}\.py$")
+    removed = []
+    for fn in os.listdir(folder):
+        if daily_re.match(fn) and fn != keep:
+            try:
+                os.remove(os.path.join(folder, fn))
+                marker = os.path.join(folder, "." + fn + ".start")
+                if os.path.exists(marker):
+                    os.remove(marker)
+                removed.append(fn)
+            except OSError:
+                pass
+    return removed
+
+
+def run_drills(ns):
+    """Run the suite against the drill functions in `ns` (pass globals()) and time the session."""
+    reverse_list             = ns["reverse_list"]
+    find_middle              = ns["find_middle"]
+    has_cycle                = ns["has_cycle"]
+    bfs                      = ns["bfs"]
+    dfs_recursive            = ns["dfs_recursive"]
+    dfs_iterative            = ns["dfs_iterative"]
+    top_k                    = ns["top_k"]
+    binary_search            = ns["binary_search"]
+    lower_bound              = ns["lower_bound"]
+    max_window_sum           = ns["max_window_sum"]
+    longest_unique_substring = ns["longest_unique_substring"]
+
+    # timer marker is unique per dated file
+    daily = ns.get("__file__", __file__)
+    start_file = os.path.join(
+        os.path.dirname(os.path.abspath(daily)),
+        "." + os.path.basename(daily) + ".start",
+    )
+
     results = []
 
     # 1. reverse
@@ -314,6 +282,18 @@ def _run():
     except Exception as e:
         results.append(("longest_unique_substring", f"crashed: {e}"))
 
+    # --- timer: start on first run of THIS dated file, persist across re-runs ---
+    if os.path.exists(start_file):
+        with open(start_file) as f:
+            start = float(f.read().strip())
+        fresh = False
+    else:
+        start = time.time()
+        fresh = True
+        with open(start_file, "w") as f:
+            f.write(repr(start))
+    elapsed = time.time() - start
+
     print("\n" + "=" * 40)
     passed = 0
     for name, res in results:
@@ -326,8 +306,101 @@ def _run():
             print(f"  ERROR  {name}  ({res})")
     print("=" * 40)
     print(f"  SCORE: {passed}/{len(results)} cold")
+
+    if passed == len(results):
+        if fresh:
+            print("  TIME:  timer only started this run — code from the stubs to clock a real session")
+            os.remove(start_file)       # reset; previous file kept until a real timed clear
+        else:
+            print(f"  TIME:  {_fmt(elapsed)}   (target: under 13m)")
+            os.remove(start_file)       # reset so the next session starts fresh
+            removed = _sweep_others(daily)
+            if removed:
+                print(f"  CLEANED: removed previous ({', '.join(removed)}) — one file left")
+    else:
+        print(f"  ELAPSED: {_fmt(elapsed)} so far")
     print("=" * 40 + "\n")
 
 
+# ============================================================================
+# STAMPER  — only used when you run start.py; never copied into daily files
+# ============================================================================
+_DAILY_HEADER = '''"""
+{date} — DSA drills.  Fill in each function from memory, then click Run.
+The test runner + timer live in start.py; you only edit the functions below.
+
+  1. No reference.py until you've been stuck >90 seconds.
+  2. On a peek, read till it clicks, then retype the WHOLE function from the top.
+"""
+
+import os, sys
+from collections import deque
+import heapq
+
+# start.py sits in this same folder; make it importable, then pull the runner
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from start import run_drills, ListNode
+
+
+'''
+
+_DAILY_FOOTER = '\n\n\nif __name__ == "__main__":\n    run_drills(globals())\n'
+
+
+def _open_in_editor(path):
+    """Best-effort: open `path` in VS Code, else the OS default. Never fatal."""
+    import shutil, subprocess, sys
+    try:
+        code = shutil.which("code") or shutil.which("code.cmd")
+        if code:
+            subprocess.Popen([code, "-r", path])
+            return
+        if sys.platform.startswith("darwin"):
+            subprocess.Popen(["open", path])
+        elif os.name == "nt":
+            os.startfile(path)  # type: ignore[attr-defined]
+        else:
+            subprocess.Popen(["xdg-open", path])
+    except Exception:
+        pass
+
+
+def _stamp_today():
+    """Stamp today's drill file (stubs only) beside start.py and open it.
+    The previous file is kept until you full-score today's — the runner deletes it then."""
+    import datetime, sys
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    today = datetime.date.today()
+    name = today.strftime("%m-%d-%Y") + ".py"
+    out_path = os.path.join(here, name)
+
+    existed = os.path.exists(out_path)
+    force = "--force" in sys.argv
+
+    if existed and not force:
+        print(f"\n  {name} already exists — leaving it alone (your work is safe).")
+        print(f"  Opening it... click Run to start the clock.")
+        print(f"  (Run  `python {os.path.basename(__file__)} --force`  to overwrite.)\n")
+        _open_in_editor(out_path)
+        return
+
+    # pull just the stub block from this file
+    with open(os.path.abspath(__file__), encoding="utf-8") as f:
+        src = f.read()
+    stubs = src[src.index("\n", src.index("STUBS START")) + 1:
+                src.index("# <<< STUBS END")].rstrip()
+    daily = _DAILY_HEADER.format(date=today.strftime("%m-%d-%Y")) + stubs + _DAILY_FOOTER
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(daily)
+
+    verb = "Overwrote" if existed else "Stamped"
+    print(f"\n  {verb}  {name}")
+    print(f"  Opening it... the timer starts when you click Run, not now.")
+    print(f"  (Yesterday's file stays until you score 11/11 here, then it's deleted.)\n")
+    _open_in_editor(out_path)
+
+
 if __name__ == "__main__":
-    _run()
+    _stamp_today()

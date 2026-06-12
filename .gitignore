@@ -1,0 +1,17 @@
+# --- drill timer state (scratch; do NOT commit) ---
+*.start            # per-day markers, e.g. .06-12-2026.py.start
+.drill_start       # old shared marker from the earlier version
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# --- editor / OS junk ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
