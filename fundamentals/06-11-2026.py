@@ -27,7 +27,13 @@ class ListNode:
 # 1. Reverse a linked list. Return the new head.
 # ============================================================================
 def reverse_list(head):
-    pass  # <- your code here
+    prev = None
+    while head:
+        nxt = head.next
+        head.next = prev
+        prev = head
+        head = nxt
+    return prev
 
 
 # ============================================================================
@@ -35,14 +41,24 @@ def reverse_list(head):
 #    Use fast/slow pointers.
 # ============================================================================
 def find_middle(head):
-    pass
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    return slow
 
 
 # ============================================================================
 # 3. Detect a cycle in a linked list. Return True/False. Fast/slow pointers.
 # ============================================================================
 def has_cycle(head):
-    pass
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow is fast:
+            return True
+    return False
 
 
 # ============================================================================
@@ -51,14 +67,36 @@ def has_cycle(head):
 #    from `start`. Visit neighbors in the order they appear in the list.
 # ============================================================================
 def bfs(graph, start):
-    pass
+    visited = {start}
+    q = deque([start])
+    order = []
+
+    while q:
+        node = q.popleft()
+        order.append(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                q.append(neighbor)
+    return order
 
 
 # ============================================================================
 # 5a. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    pass
+    visited =set()
+    order = []
+
+    def go(node: ListNode) -> None:
+        order.append(node)
+        visited.add(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                go(neighbor)
+    
+    go(start)
+    return order
 
 
 # ============================================================================
@@ -66,14 +104,32 @@ def dfs_recursive(graph, start):
 #     (Order can differ from the recursive version — see the test.)
 # ============================================================================
 def dfs_iterative(graph, start):
-    pass
+    visited = set()
+    s = [start]
+    order = []
+
+    while s:
+        node = s.pop()
+        if node in visited:
+            continue
+        order.append(node)
+        visited.add(node)
+        for neighbor in graph[node]:
+            s.append(neighbor)
+    
+    return order
 
 
 # ============================================================================
 # 6. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    pass
+    h = []
+    for num in nums:
+        heapq.heappush(h, num)
+        if len(h) > k:
+            heapq.heappop(h)
+    return sorted(h, reverse=True)
 
 
 # ============================================================================
@@ -81,7 +137,16 @@ def top_k(nums, k):
 #    or -1 if not present.
 # ============================================================================
 def binary_search(nums, target):
-    pass
+    lo, hi = 0, len(nums)-1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return -1
 
 
 # ============================================================================
@@ -90,7 +155,14 @@ def binary_search(nums, target):
 #    valid spot). For nums=[1,3,3,5], target=3 -> 1. target=4 -> 3. target=6 -> 4.
 # ============================================================================
 def lower_bound(nums, target):
-    pass
+    lo, hi = 0, len(nums)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if nums[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo
 
 
 # ============================================================================
@@ -98,7 +170,12 @@ def lower_bound(nums, target):
 #    Assume 1 <= k <= len(nums). Do it in one pass (slide, don't re-sum).
 # ============================================================================
 def max_window_sum(nums, k):
-    pass
+    window = sum(nums[:k])
+    best = window
+    for i in range(k, len(nums)):
+        window += nums[i] - nums[i-k]
+        best = max(best, window)
+    return best
 
 
 # ============================================================================
@@ -106,7 +183,17 @@ def max_window_sum(nums, k):
 #     `s` with no repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    pass
+    seen = set()
+    left = 0
+    best = 0
+    for right in range(len(s)):
+        while s[right] in seen:
+            seen.remove(s[left])
+            left += 1
+        seen.add(s[right])
+        best = max(best, right - left + 1)
+    return best
+
 
 
 # ============================================================================
@@ -264,7 +351,7 @@ def _run():
         if fresh:
             print("  TIME:  timer only started this run — code from the stubs to clock a real session")
         else:
-            print(f"  TIME:  {_fmt(elapsed)}")
+            print(f"  TIME:  {_fmt(elapsed)}   (target: under 13m)")
         os.remove(_START_FILE)          # reset so the next session starts fresh
     else:
         print(f"  ELAPSED: {_fmt(elapsed)} so far")
