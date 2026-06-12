@@ -3,21 +3,63 @@ DRILL GENERATOR + SHARED TEST RUNNER
 
 Daily workflow:
   1. Run THIS file each morning:   python start.py
-     -> stamps a fresh MM-DD-YYYY.py (just the stubs) beside start.py and
-        opens it. Yesterday's file is KEPT as a reference for now.
+     -> stamps a fresh MM-DD-YYYY.py (just the stubs) beside start.py, opens it.
      -> running start.py does NOT start any timer.
-  2. In that dated file, fill in the functions and click Run.
-     The clock starts on that first run. Re-run to check + see elapsed time.
-  3. The moment you score 11/11 with a real time, the previous day's file is
-     deleted automatically — so you keep your last good file until you've
-     re-earned a full clear on the new one, then drop back to one file.
+  2. Fill in the functions and click Run. The clock starts on that first run.
+  3. On a timed full clear of the CORE set, the previous day's file is deleted.
 
-Keep start.py where it is; the daily file sits beside it and imports from it.
+╔══════════════════════════════════════════════════════════════════════════╗
+║  TO REORDER OR RE-TIER PROBLEMS: just edit the CORE and BONUS lists below. ║
+║  - Order of names = order they appear in the stamped file and the results. ║
+║  - CORE names count toward SCORE and gate the timer/cleanup.               ║
+║  - BONUS names run but never affect SCORE/timer/cleanup.                   ║
+║  - Move a name between the two lists to re-tier it. Delete a name to drop  ║
+║    it. To ADD a new problem, add an entry to PROBLEMS (sig/desc/test) too. ║
+╚══════════════════════════════════════════════════════════════════════════╝
 """
 
 import time, os
 from collections import deque
 import heapq
+
+
+# ============================================================================
+# EDIT HERE — the only things you normally touch
+# ============================================================================
+CORE = [
+    # linked list
+    "reverse_list", "find_middle", "has_cycle", "delete_middle_node", "odd_even_list",
+    # graph
+    "bfs", "dfs_recursive", "dfs_iterative",
+    # heap
+    "top_k",
+    # binary search
+    "binary_search", "lower_bound",
+    # sliding window
+    "max_window_sum", "longest_unique_substring",
+    # trees / BST
+    "max_depth", "level_order", "is_valid_bst", "search_bst", "delete_bst_node",
+    # grid
+    "num_islands",
+    # arrays / stack 
+    "three_sum", "daily_temperatures", 
+    # intervals 
+    "merge_intervals", 
+    # backtracking
+    "subsets", 
+    # dp
+    "coin_change",
+]
+
+BONUS = [
+    "course_schedule",          # topological sort
+    "min_eating_speed",         # binary search on the answer
+    "unique_paths",             # 2D dynamic programming
+    "subarray_sum",             # prefix sum + hash map
+    "group_anagrams",           # hash map grouping
+    "diameter_of_binary_tree",  # tree post-order aggregation
+]
+# ============================================================================
 
 
 # --- shared types (imported by daily files) ---------------------------------
@@ -27,97 +69,14 @@ class ListNode:
         self.next = next
 
 
-# >>> STUBS START (the stamper copies everything between these two markers) >>>
-# ============================================================================
-# 1. Reverse a linked list. Return the new head.
-# ============================================================================
-def reverse_list(head):
-    pass
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
 
-# ============================================================================
-# 2. Find the middle node (for even length, return the second middle).
-#    Use fast/slow pointers.
-# ============================================================================
-def find_middle(head):
-    pass
-
-
-# ============================================================================
-# 3. Detect a cycle in a linked list. Return True/False. Fast/slow pointers.
-# ============================================================================
-def has_cycle(head):
-    pass
-
-
-# ============================================================================
-# 4. BFS over a graph (adjacency list: dict[node] -> list[neighbors]).
-#    Return the list of nodes in the order they are first visited, starting
-#    from `start`. Visit neighbors in the order they appear in the list.
-# ============================================================================
-def bfs(graph, start):
-    pass
-
-
-# ============================================================================
-# 5a. Recursive DFS. Same return contract as bfs (visit order from `start`).
-# ============================================================================
-def dfs_recursive(graph, start):
-    pass
-
-
-# ============================================================================
-# 5b. Iterative DFS using an explicit stack. Same return contract.
-#     (Order can differ from the recursive version — see the test.)
-# ============================================================================
-def dfs_iterative(graph, start):
-    pass
-
-
-# ============================================================================
-# 6. Return the k largest numbers from `nums`, sorted descending. Use a heap.
-# ============================================================================
-def top_k(nums, k):
-    pass
-
-
-# ============================================================================
-# 7. Binary search. `nums` is sorted ascending. Return the index of `target`,
-#    or -1 if not present.
-# ============================================================================
-def binary_search(nums, target):
-    pass
-
-
-# ============================================================================
-# 8. Leftmost insertion point. Return the index of the first element >= target
-#    (i.e. where you'd insert target to keep nums sorted, choosing the leftmost
-#    valid spot). For nums=[1,3,3,5], target=3 -> 1. target=4 -> 3. target=6 -> 4.
-# ============================================================================
-def lower_bound(nums, target):
-    pass
-
-
-# ============================================================================
-# 9. Fixed-size sliding window. Return the maximum sum of any window of size k.
-#    Assume 1 <= k <= len(nums). Do it in one pass (slide, don't re-sum).
-# ============================================================================
-def max_window_sum(nums, k):
-    pass
-
-
-# ============================================================================
-# 10. Variable sliding window. Return the length of the LONGEST substring of
-#     `s` with no repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
-# ============================================================================
-def longest_unique_substring(s):
-    pass
-# <<< STUBS END <<<
-
-
-# ============================================================================
-# SHARED TEST RUNNER  — imported and called by each daily file
-# ============================================================================
+# --- test helpers -----------------------------------------------------------
 def _build(vals):
     dummy = ListNode()
     cur = dummy
@@ -135,15 +94,294 @@ def _to_list(head):
     return out
 
 
+def _build_tree(vals):
+    if not vals or vals[0] is None:
+        return None
+    root = TreeNode(vals[0])
+    q = deque([root])
+    i = 1
+    while q and i < len(vals):
+        node = q.popleft()
+        if i < len(vals):
+            if vals[i] is not None:
+                node.left = TreeNode(vals[i]); q.append(node.left)
+            i += 1
+        if i < len(vals):
+            if vals[i] is not None:
+                node.right = TreeNode(vals[i]); q.append(node.right)
+            i += 1
+    return root
+
+
+def _inorder(root):
+    out = []
+    def go(n):
+        if not n:
+            return
+        go(n.left); out.append(n.val); go(n.right)
+    go(root)
+    return out
+
+
+_G = {0: [1, 2], 1: [0, 3], 2: [0, 3], 3: [1, 2]}
+
+
+# --- tests: each takes ns (the daily file's globals) and returns True/False --
+def _t_reverse_list(ns):
+    f = ns["reverse_list"]
+    return (_to_list(f(_build([1, 2, 3, 4, 5]))) == [5, 4, 3, 2, 1]
+            and _to_list(f(_build([]))) == []
+            and _to_list(f(_build([1]))) == [1])
+
+def _t_find_middle(ns):
+    f = ns["find_middle"]
+    return f(_build([1, 2, 3, 4, 5])).val == 3 and f(_build([1, 2, 3, 4])).val == 3
+
+def _t_has_cycle(ns):
+    f = ns["has_cycle"]
+    a = ListNode(1); b = ListNode(2); c = ListNode(3)
+    a.next = b; b.next = c; c.next = a
+    return f(a) is True and f(_build([1, 2, 3])) is False
+
+def _t_delete_middle_node(ns):
+    f = ns["delete_middle_node"]
+    return (_to_list(f(_build([1, 3, 4, 7, 1, 2, 6]))) == [1, 3, 4, 1, 2, 6]
+            and _to_list(f(_build([1, 2, 3, 4]))) == [1, 2, 4]
+            and _to_list(f(_build([2, 1]))) == [2]
+            and _to_list(f(_build([1]))) == [])
+
+def _t_odd_even_list(ns):
+    f = ns["odd_even_list"]
+    return (_to_list(f(_build([1, 2, 3, 4, 5]))) == [1, 3, 5, 2, 4]
+            and _to_list(f(_build([2, 1, 3, 5, 6, 4, 7]))) == [2, 3, 6, 7, 1, 5, 4]
+            and _to_list(f(_build([]))) == []
+            and _to_list(f(_build([1]))) == [1])
+
+def _t_bfs(ns):
+    return ns["bfs"](_G, 0) == [0, 1, 2, 3]
+
+def _t_dfs_recursive(ns):
+    return ns["dfs_recursive"](_G, 0) == [0, 1, 3, 2]
+
+def _t_dfs_iterative(ns):
+    return ns["dfs_iterative"](_G, 0) == [0, 2, 3, 1]
+
+def _t_top_k(ns):
+    f = ns["top_k"]
+    return f([3, 1, 8, 2, 9, 4], 3) == [9, 8, 4] and f([5], 1) == [5]
+
+def _t_binary_search(ns):
+    f = ns["binary_search"]
+    return (f([1, 3, 5, 7, 9], 7) == 3 and f([1, 3, 5, 7, 9], 1) == 0
+            and f([1, 3, 5, 7, 9], 9) == 4 and f([1, 3, 5, 7, 9], 4) == -1
+            and f([], 1) == -1)
+
+def _t_lower_bound(ns):
+    f = ns["lower_bound"]
+    return (f([1, 3, 3, 5], 3) == 1 and f([1, 3, 3, 5], 4) == 3
+            and f([1, 3, 3, 5], 6) == 4 and f([1, 3, 3, 5], 0) == 0)
+
+def _t_max_window_sum(ns):
+    f = ns["max_window_sum"]
+    return f([2, 1, 5, 1, 3, 2], 3) == 9 and f([1, 2, 3], 3) == 6 and f([4], 1) == 4
+
+def _t_longest_unique_substring(ns):
+    f = ns["longest_unique_substring"]
+    return (f("abcabcbb") == 3 and f("bbbbb") == 1 and f("pwwkew") == 3 and f("") == 0)
+
+def _t_max_depth(ns):
+    f = ns["max_depth"]
+    return (f(_build_tree([3, 9, 20, None, None, 15, 7])) == 3
+            and f(_build_tree([])) == 0 and f(_build_tree([1])) == 1
+            and f(_build_tree([1, 2, None, 3])) == 3)
+
+def _t_level_order(ns):
+    f = ns["level_order"]
+    return (f(_build_tree([3, 9, 20, None, None, 15, 7])) == [[3], [9, 20], [15, 7]]
+            and f(_build_tree([])) == [] and f(_build_tree([1])) == [[1]])
+
+def _t_is_valid_bst(ns):
+    f = ns["is_valid_bst"]
+    return (f(_build_tree([2, 1, 3])) is True
+            and f(_build_tree([5, 1, 4, None, None, 3, 6])) is False
+            and f(_build_tree([5, 4, 6, None, None, 3, 7])) is False
+            and f(_build_tree([1])) is True)
+
+def _t_search_bst(ns):
+    f = ns["search_bst"]
+    r = f(_build_tree([4, 2, 7, 1, 3]), 2)
+    return (r is not None and r.val == 2 and _inorder(r) == [1, 2, 3]
+            and f(_build_tree([4, 2, 7, 1, 3]), 5) is None)
+
+def _t_delete_bst_node(ns):
+    f = ns["delete_bst_node"]
+    return (_inorder(f(_build_tree([5, 3, 6, 2, 4, None, 7]), 3)) == [2, 4, 5, 6, 7]
+            and _inorder(f(_build_tree([5, 3, 6, 2, 4, None, 7]), 7)) == [2, 3, 4, 5, 6]
+            and _inorder(f(_build_tree([5, 3, 6, 2, 4, None, 7]), 5)) == [2, 3, 4, 6, 7]
+            and _inorder(f(_build_tree([1]), 1)) == [])
+
+def _t_num_islands(ns):
+    f = ns["num_islands"]
+    return (f([[1, 1, 0, 0, 0], [1, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 1]]) == 3
+            and f([[1, 1, 1, 1, 0], [1, 1, 0, 1, 0], [1, 1, 0, 0, 0], [0, 0, 0, 0, 0]]) == 1
+            and f([[0, 0], [0, 0]]) == 0)
+
+def _t_three_sum(ns):
+    f = ns["three_sum"]
+    def norm(ts): return sorted(tuple(sorted(t)) for t in ts)
+    return (norm(f([-1, 0, 1, 2, -1, -4])) == norm([[-1, -1, 2], [-1, 0, 1]])
+            and norm(f([0, 0, 0])) == [(0, 0, 0)]
+            and f([0, 1, 1]) == [])
+
+def _t_daily_temperatures(ns):
+    f = ns["daily_temperatures"]
+    return (f([73, 74, 75, 71, 69, 72, 76, 73]) == [1, 1, 4, 2, 1, 1, 0, 0]
+            and f([30, 40, 50, 60]) == [1, 1, 1, 0]
+            and f([30, 60, 90]) == [1, 1, 0])
+
+def _t_merge_intervals(ns):
+    f = ns["merge_intervals"]
+    return (f([[1, 3], [2, 6], [8, 10], [15, 18]]) == [[1, 6], [8, 10], [15, 18]]
+            and f([[1, 4], [4, 5]]) == [[1, 5]]
+            and f([[1, 4], [0, 2], [3, 5]]) == [[0, 5]])
+
+def _t_subsets(ns):
+    f = ns["subsets"]
+    def norm(xss): return sorted(tuple(sorted(x)) for x in xss)
+    return (norm(f([1, 2, 3])) == norm([[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]])
+            and norm(f([])) == [()] and norm(f([0])) == [(), (0,)])
+
+def _t_coin_change(ns):
+    f = ns["coin_change"]
+    return (f([1, 2, 5], 11) == 3 and f([2], 3) == -1 and f([1], 0) == 0
+            and f([1, 5, 10, 25], 30) == 2)
+
+# bonus tests
+def _t_course_schedule(ns):
+    f = ns["course_schedule"]
+    return (f(2, [[1, 0]]) is True and f(2, [[1, 0], [0, 1]]) is False
+            and f(4, [[1, 0], [2, 1], [3, 2]]) is True)
+
+def _t_min_eating_speed(ns):
+    f = ns["min_eating_speed"]
+    return (f([3, 6, 7, 11], 8) == 4 and f([30, 11, 23, 4, 20], 5) == 30
+            and f([30, 11, 23, 4, 20], 6) == 23)
+
+def _t_unique_paths(ns):
+    f = ns["unique_paths"]
+    return f(3, 7) == 28 and f(3, 2) == 3 and f(1, 1) == 1
+
+def _t_subarray_sum(ns):
+    f = ns["subarray_sum"]
+    return f([1, 1, 1], 2) == 2 and f([1, 2, 3], 3) == 2 and f([1, -1, 0], 0) == 3
+
+def _t_group_anagrams(ns):
+    f = ns["group_anagrams"]
+    def norm(gs): return sorted(tuple(sorted(g)) for g in gs)
+    return norm(f(["eat", "tea", "tan", "ate", "nat", "bat"])) == \
+        norm([["eat", "tea", "ate"], ["tan", "nat"], ["bat"]])
+
+def _t_diameter_of_binary_tree(ns):
+    f = ns["diameter_of_binary_tree"]
+    return (f(_build_tree([1, 2, 3, 4, 5])) == 3 and f(_build_tree([1])) == 0
+            and f(_build_tree([1, 2])) == 1)
+
+
+# --- the registry: sig + description + test for every problem ---------------
+PROBLEMS = {
+    "reverse_list": dict(sig="reverse_list(head)", test=_t_reverse_list,
+        desc="Reverse a linked list. Return the new head."),
+    "find_middle": dict(sig="find_middle(head)", test=_t_find_middle,
+        desc="Find the middle node (second middle on even length). Fast/slow pointers."),
+    "has_cycle": dict(sig="has_cycle(head)", test=_t_has_cycle,
+        desc="Detect a cycle in a linked list. Return True/False. Fast/slow pointers."),
+    "delete_middle_node": dict(sig="delete_middle_node(head)", test=_t_delete_middle_node,
+        desc="[linked list] Delete the MIDDLE node (the floor(n/2)-th, 0-indexed) and\n"
+             "return the head. [1,2,3,4] -> [1,2,4]. [1] -> [] (None). Keep a prev pointer."),
+    "odd_even_list": dict(sig="odd_even_list(head)", test=_t_odd_even_list,
+        desc="[linked list] Regroup so all ODD positions (1st,3rd,...) come first, then the\n"
+             "EVEN positions, preserving order. [1,2,3,4,5] -> [1,3,5,2,4]. By POSITION."),
+    "bfs": dict(sig="bfs(graph, start)", test=_t_bfs,
+        desc="BFS over an adjacency-list graph. Return nodes in first-visit order from\n"
+             "`start`, visiting neighbors in list order."),
+    "dfs_recursive": dict(sig="dfs_recursive(graph, start)", test=_t_dfs_recursive,
+        desc="Recursive DFS. Same return contract as bfs (visit order from `start`)."),
+    "dfs_iterative": dict(sig="dfs_iterative(graph, start)", test=_t_dfs_iterative,
+        desc="Iterative DFS with an explicit stack. Same contract; order can differ from\n"
+             "the recursive version (see the test)."),
+    "top_k": dict(sig="top_k(nums, k)", test=_t_top_k,
+        desc="Return the k largest numbers from `nums`, sorted descending. Use a heap."),
+    "binary_search": dict(sig="binary_search(nums, target)", test=_t_binary_search,
+        desc="Binary search. `nums` sorted ascending. Return index of `target`, else -1."),
+    "lower_bound": dict(sig="lower_bound(nums, target)", test=_t_lower_bound,
+        desc="Leftmost insertion point: index of the first element >= target.\n"
+             "[1,3,3,5], 3 -> 1.  4 -> 3.  6 -> 4.  0 -> 0."),
+    "max_window_sum": dict(sig="max_window_sum(nums, k)", test=_t_max_window_sum,
+        desc="Fixed-size sliding window. Max sum of any window of size k, in one pass."),
+    "longest_unique_substring": dict(sig="longest_unique_substring(s)", test=_t_longest_unique_substring,
+        desc="Variable sliding window. Length of the LONGEST substring of `s` with no\n"
+             "repeating characters. (\"abcabcbb\" -> 3, \"bbbbb\" -> 1)"),
+    "max_depth": dict(sig="max_depth(root)", test=_t_max_depth,
+        desc="[tree / DFS recursion] Max depth of a binary tree. Empty tree -> 0."),
+    "level_order": dict(sig="level_order(root)", test=_t_level_order,
+        desc="[tree / BFS] Level-order -> list of levels (each left-to-right, top-to-bottom).\n"
+             "[3,9,20,null,null,15,7] -> [[3],[9,20],[15,7]]. [] -> []."),
+    "is_valid_bst": dict(sig="is_valid_bst(root)", test=_t_is_valid_bst,
+        desc="[BST / bounded recursion] True if a valid BST (every left subtree < node <\n"
+             "every right subtree, strictly)."),
+    "search_bst": dict(sig="search_bst(root, val)", test=_t_search_bst,
+        desc="[BST search] Return the SUBTREE (node) whose value == val, else None. Use the\n"
+             "BST property — go left/right, don't scan the whole tree."),
+    "delete_bst_node": dict(sig="delete_bst_node(root, key)", test=_t_delete_bst_node,
+        desc="[BST delete] Delete the node with value `key`; return the (possibly new) root,\n"
+             "keeping the BST valid. Two-child case: replace with the in-order successor."),
+    "num_islands": dict(sig="num_islands(grid)", test=_t_num_islands,
+        desc="[grid / flood fill] Count islands in a 2D grid of 0s and 1s, connected\n"
+             "4-directionally (up/down/left/right)."),
+    "three_sum": dict(sig="three_sum(nums)", test=_t_three_sum,
+        desc="[sort + two pointers] All UNIQUE triplets [a,b,c] with a+b+c == 0. No\n"
+             "duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]]."),
+    "daily_temperatures": dict(sig="daily_temperatures(temperatures)", test=_t_daily_temperatures,
+        desc="[monotonic stack] For each day, how many days until a WARMER temperature\n"
+             "(0 if none). [73,74,75,71,69,72,76,73] -> [1,1,4,2,1,1,0,0]."),
+    "merge_intervals": dict(sig="merge_intervals(intervals)", test=_t_merge_intervals,
+        desc="[sort + sweep / intervals] Merge overlapping [start,end] intervals (unsorted\n"
+             "input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]]."),
+    "subsets": dict(sig="subsets(nums)", test=_t_subsets,
+        desc="[backtracking] Power set of distinct `nums` — every subset. Order free."),
+    "coin_change": dict(sig="coin_change(coins, amount)", test=_t_coin_change,
+        desc="[dynamic programming] Fewest coins (unlimited each) summing to `amount`, or -1\n"
+             "if impossible. coin_change([1,2,5],11) -> 3."),
+
+    "course_schedule": dict(sig="course_schedule(num_courses, prerequisites)", test=_t_course_schedule,
+        desc="[topological sort] True if all courses can finish (no cycle). prerequisites[i]\n"
+             "= [a, b] means b before a. course_schedule(2,[[1,0]]) -> True."),
+    "min_eating_speed": dict(sig="min_eating_speed(piles, h)", test=_t_min_eating_speed,
+        desc="[binary search on the answer] Smallest integer speed to eat all `piles` within\n"
+             "`h` hours (ceil(pile/speed) hours each). ([3,6,7,11], 8) -> 4."),
+    "unique_paths": dict(sig="unique_paths(m, n)", test=_t_unique_paths,
+        desc="[2D dynamic programming] Unique paths top-left to bottom-right of an m x n grid\n"
+             "moving only right/down. unique_paths(3,7) -> 28."),
+    "subarray_sum": dict(sig="subarray_sum(nums, k)", test=_t_subarray_sum,
+        desc="[prefix sum + hash map] Count subarrays of `nums` whose sum equals k. Seed\n"
+             "{0: 1}. subarray_sum([1,1,1], 2) -> 2."),
+    "group_anagrams": dict(sig="group_anagrams(strs)", test=_t_group_anagrams,
+        desc="[hash map grouping] Group anagrams together (order of/within groups free).\n"
+             "Key each word by its sorted letters."),
+    "diameter_of_binary_tree": dict(sig="diameter_of_binary_tree(root)", test=_t_diameter_of_binary_tree,
+        desc="[tree post-order aggregation] Diameter = number of EDGES on the longest path\n"
+             "between any two nodes (may not pass through root). ([1,2,3,4,5]) -> 3."),
+}
+
+
+# --- misc runner helpers ----------------------------------------------------
 def _fmt(secs):
     m, s = divmod(int(secs), 60)
     return f"{m}m {s:02d}s"
 
 
 def _sweep_others(current_file):
-    """Delete every drill file except `current_file` (and their .start markers).
-    Called only after a full-score, real-time run, so your last good file lives
-    on as a reference until you've re-earned 11/11."""
+    """Delete every drill file except current (and their .start markers)."""
     import re
     folder = os.path.dirname(os.path.abspath(current_file))
     keep = os.path.basename(current_file)
@@ -162,127 +400,38 @@ def _sweep_others(current_file):
     return removed
 
 
-def run_drills(ns):
-    """Run the suite against the drill functions in `ns` (pass globals()) and time the session."""
-    reverse_list             = ns["reverse_list"]
-    find_middle              = ns["find_middle"]
-    has_cycle                = ns["has_cycle"]
-    bfs                      = ns["bfs"]
-    dfs_recursive            = ns["dfs_recursive"]
-    dfs_iterative            = ns["dfs_iterative"]
-    top_k                    = ns["top_k"]
-    binary_search            = ns["binary_search"]
-    lower_bound              = ns["lower_bound"]
-    max_window_sum           = ns["max_window_sum"]
-    longest_unique_substring = ns["longest_unique_substring"]
+def _run_set(names, ns, scored):
+    """Run the tests for `names` that exist in both PROBLEMS and ns.
+    For scored (core) sets, a configured-but-missing function counts as 'absent'
+    (not a pass). For bonus, missing functions are skipped silently."""
+    out = []
+    for key in names:
+        if key not in PROBLEMS:
+            out.append((key, "not in PROBLEMS — check spelling"))
+            continue
+        if key not in ns:
+            if scored:
+                out.append((key, "absent (stub deleted?)"))
+            continue
+        try:
+            out.append((key, PROBLEMS[key]["test"](ns)))
+        except Exception as e:
+            out.append((key, f"crashed: {e}"))
+    return out
 
-    # timer marker is unique per dated file
+
+def run_drills(ns):
+    """Run CORE (scored) and BONUS (unscored) against the functions in `ns`."""
     daily = ns.get("__file__", __file__)
     start_file = os.path.join(
         os.path.dirname(os.path.abspath(daily)),
         "." + os.path.basename(daily) + ".start",
     )
 
-    results = []
+    core = _run_set(CORE, ns, scored=True)
+    bonus = _run_set(BONUS, ns, scored=False)
 
-    # 1. reverse
-    try:
-        ok = (_to_list(reverse_list(_build([1, 2, 3, 4, 5]))) == [5, 4, 3, 2, 1]
-              and _to_list(reverse_list(_build([]))) == []
-              and _to_list(reverse_list(_build([1]))) == [1])
-        results.append(("reverse_list", ok))
-    except Exception as e:
-        results.append(("reverse_list", f"crashed: {e}"))
-
-    # 2. find_middle
-    try:
-        ok = (find_middle(_build([1, 2, 3, 4, 5])).val == 3
-              and find_middle(_build([1, 2, 3, 4])).val == 3)
-        results.append(("find_middle", ok))
-    except Exception as e:
-        results.append(("find_middle", f"crashed: {e}"))
-
-    # 3. has_cycle
-    try:
-        a = ListNode(1); b = ListNode(2); c = ListNode(3)
-        a.next = b; b.next = c; c.next = a            # cycle
-        ok = has_cycle(a) is True and has_cycle(_build([1, 2, 3])) is False
-        results.append(("has_cycle", ok))
-    except Exception as e:
-        results.append(("has_cycle", f"crashed: {e}"))
-
-    g = {0: [1, 2], 1: [0, 3], 2: [0, 3], 3: [1, 2]}
-
-    # 4. bfs
-    try:
-        ok = bfs(g, 0) == [0, 1, 2, 3]
-        results.append(("bfs", ok))
-    except Exception as e:
-        results.append(("bfs", f"crashed: {e}"))
-
-    # 5a. dfs_recursive  (0 -> 1 -> 3 -> 2)
-    try:
-        ok = dfs_recursive(g, 0) == [0, 1, 3, 2]
-        results.append(("dfs_recursive", ok))
-    except Exception as e:
-        results.append(("dfs_recursive", f"crashed: {e}"))
-
-    # 5b. dfs_iterative — stack reverses neighbor order (0 -> 2 -> 3 -> 1)
-    try:
-        ok = dfs_iterative(g, 0) == [0, 2, 3, 1]
-        results.append(("dfs_iterative", ok))
-    except Exception as e:
-        results.append(("dfs_iterative", f"crashed: {e}"))
-
-    # 6. top_k
-    try:
-        ok = (top_k([3, 1, 8, 2, 9, 4], 3) == [9, 8, 4]
-              and top_k([5], 1) == [5])
-        results.append(("top_k", ok))
-    except Exception as e:
-        results.append(("top_k", f"crashed: {e}"))
-
-    # 7. binary_search
-    try:
-        ok = (binary_search([1, 3, 5, 7, 9], 7) == 3
-              and binary_search([1, 3, 5, 7, 9], 1) == 0
-              and binary_search([1, 3, 5, 7, 9], 9) == 4
-              and binary_search([1, 3, 5, 7, 9], 4) == -1
-              and binary_search([], 1) == -1)
-        results.append(("binary_search", ok))
-    except Exception as e:
-        results.append(("binary_search", f"crashed: {e}"))
-
-    # 8. lower_bound
-    try:
-        ok = (lower_bound([1, 3, 3, 5], 3) == 1
-              and lower_bound([1, 3, 3, 5], 4) == 3
-              and lower_bound([1, 3, 3, 5], 6) == 4
-              and lower_bound([1, 3, 3, 5], 0) == 0)
-        results.append(("lower_bound", ok))
-    except Exception as e:
-        results.append(("lower_bound", f"crashed: {e}"))
-
-    # 9. max_window_sum
-    try:
-        ok = (max_window_sum([2, 1, 5, 1, 3, 2], 3) == 9
-              and max_window_sum([1, 2, 3], 3) == 6
-              and max_window_sum([4], 1) == 4)
-        results.append(("max_window_sum", ok))
-    except Exception as e:
-        results.append(("max_window_sum", f"crashed: {e}"))
-
-    # 10. longest_unique_substring
-    try:
-        ok = (longest_unique_substring("abcabcbb") == 3
-              and longest_unique_substring("bbbbb") == 1
-              and longest_unique_substring("pwwkew") == 3
-              and longest_unique_substring("") == 0)
-        results.append(("longest_unique_substring", ok))
-    except Exception as e:
-        results.append(("longest_unique_substring", f"crashed: {e}"))
-
-    # --- timer: start on first run of THIS dated file, persist across re-runs ---
+    # timer: start on first run of THIS dated file, persist across re-runs
     if os.path.exists(start_file):
         with open(start_file) as f:
             start = float(f.read().strip())
@@ -296,7 +445,7 @@ def run_drills(ns):
 
     print("\n" + "=" * 40)
     passed = 0
-    for name, res in results:
+    for name, res in core:
         if res is True:
             print(f"  PASS   {name}")
             passed += 1
@@ -305,20 +454,32 @@ def run_drills(ns):
         else:
             print(f"  ERROR  {name}  ({res})")
     print("=" * 40)
-    print(f"  SCORE: {passed}/{len(results)} cold")
+    print(f"  SCORE: {passed}/{len(core)} cold")
 
-    if passed == len(results):
+    if passed == len(core) and len(core) > 0:
         if fresh:
             print("  TIME:  timer only started this run — code from the stubs to clock a real session")
-            os.remove(start_file)       # reset; previous file kept until a real timed clear
+            os.remove(start_file)
         else:
             print(f"  TIME:  {_fmt(elapsed)}   (target: under 13m)")
-            os.remove(start_file)       # reset so the next session starts fresh
+            os.remove(start_file)
             removed = _sweep_others(daily)
             if removed:
                 print(f"  CLEANED: removed previous ({', '.join(removed)}) — one file left")
     else:
         print(f"  ELAPSED: {_fmt(elapsed)} so far")
+
+    if bonus:
+        bpass = sum(1 for _, r in bonus if r is True)
+        print("- " * 20)
+        print(f"  BONUS (not scored): {bpass}/{len(bonus)}")
+        for name, res in bonus:
+            if res is True:
+                print(f"    pass   {name}")
+            elif res is False:
+                print(f"    fail   {name}")
+            else:
+                print(f"    err    {name}  ({res})")
     print("=" * 40 + "\n")
 
 
@@ -339,12 +500,44 @@ import heapq
 
 # start.py sits in this same folder; make it importable, then pull the runner
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from start import run_drills, ListNode
+from start import run_drills, ListNode, TreeNode
 
 
 '''
 
 _DAILY_FOOTER = '\n\n\nif __name__ == "__main__":\n    run_drills(globals())\n'
+
+_BONUS_BANNER = (
+    "# " + "\u2588" * 76 + "\n"
+    "# BONUS — extra reps; these do NOT count toward your SCORE and never gate the\n"
+    "# timer or file cleanup. Solve them if you want, skip freely, or delete any.\n"
+    "# " + "\u2588" * 76
+)
+
+
+def _render_stub(label, spec):
+    bar = "# " + "=" * 76
+    lines = spec["desc"].split("\n")
+    body = [bar, f"# {label}. {lines[0]}"]
+    for ln in lines[1:]:
+        body.append(f"#     {ln}" if ln else "#")
+    body.append(bar)
+    body.append(f"def {spec['sig']}:")
+    body.append("    pass")
+    return "\n".join(body)
+
+
+def _build_daily_body():
+    blocks = []
+    for i, key in enumerate(CORE, 1):
+        if key in PROBLEMS:
+            blocks.append(_render_stub(str(i), PROBLEMS[key]))
+    if BONUS:
+        blocks.append(_BONUS_BANNER)
+        for j, key in enumerate(BONUS, 1):
+            if key in PROBLEMS:
+                blocks.append(_render_stub(f"B{j}", PROBLEMS[key]))
+    return "\n\n\n".join(blocks)
 
 
 def _open_in_editor(path):
@@ -385,20 +578,14 @@ def _stamp_today():
         _open_in_editor(out_path)
         return
 
-    # pull just the stub block from this file
-    with open(os.path.abspath(__file__), encoding="utf-8") as f:
-        src = f.read()
-    stubs = src[src.index("\n", src.index("STUBS START")) + 1:
-                src.index("# <<< STUBS END")].rstrip()
-    daily = _DAILY_HEADER.format(date=today.strftime("%m-%d-%Y")) + stubs + _DAILY_FOOTER
-
+    daily = _DAILY_HEADER.format(date=today.strftime("%m-%d-%Y")) + _build_daily_body() + _DAILY_FOOTER
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(daily)
 
     verb = "Overwrote" if existed else "Stamped"
-    print(f"\n  {verb}  {name}")
+    print(f"\n  {verb}  {name}  ({len(CORE)} core + {len(BONUS)} bonus)")
     print(f"  Opening it... the timer starts when you click Run, not now.")
-    print(f"  (Yesterday's file stays until you score 11/11 here, then it's deleted.)\n")
+    print(f"  (Yesterday's file stays until you full-score here, then it's deleted.)\n")
     _open_in_editor(out_path)
 
 
