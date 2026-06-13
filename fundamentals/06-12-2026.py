@@ -19,21 +19,37 @@ from start import run_drills, ListNode, TreeNode
 # 1. Reverse a linked list. Return the new head.
 # ============================================================================
 def reverse_list(head):
-    pass
+    prev = None
+    while head:
+        nxt = head.next
+        head.next = prev
+        prev = head
+        head = nxt
+    return prev
 
 
 # ============================================================================
 # 2. Find the middle node (second middle on even length). Fast/slow pointers.
 # ============================================================================
 def find_middle(head):
-    pass
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    return slow
 
 
 # ============================================================================
 # 3. Detect a cycle in a linked list. Return True/False. Fast/slow pointers.
 # ============================================================================
 def has_cycle(head):
-    pass
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow is fast:
+            return True
+    return False
 
 
 # ============================================================================
@@ -41,7 +57,16 @@ def has_cycle(head):
 #     return the head. [1,2,3,4] -> [1,2,4]. [1] -> [] (None). Keep a prev pointer.
 # ============================================================================
 def delete_middle_node(head):
-    pass
+    if not head or not head.next:
+        return None
+    
+    slow = fast = head
+    while fast and fast.next:
+        prev = slow
+        slow = slow.next
+        fast = fast.next.next
+    prev.next = slow.next
+    return head
 
 
 # ============================================================================
@@ -49,7 +74,20 @@ def delete_middle_node(head):
 #     EVEN positions, preserving order. [1,2,3,4,5] -> [1,3,5,2,4]. By POSITION.
 # ============================================================================
 def odd_even_list(head):
-    pass
+    if not head or not head.next:
+        return head
+
+    odd = head
+    even = head.next
+    even_head = even
+
+    while even and even.next:
+        odd.next = even.next
+        odd = odd.next
+        even.next = odd.next
+        even = even.next
+    odd.next = even_head
+    return head
 
 
 # ============================================================================
@@ -57,14 +95,36 @@ def odd_even_list(head):
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
-    pass
+    visited = {start}
+    q = deque([start])
+    order = []
+
+    while q:
+        node = q.popleft()
+        order.append(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                q.append(neighbor)
+    return order
 
 
 # ============================================================================
 # 7. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    pass
+    visited = set()
+    order = []
+
+    def go(node: ListNode) -> None:
+        order.append(node)
+        visited.add(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                go(neighbor)
+    
+    go(start)
+    return order
 
 
 # ============================================================================
@@ -72,21 +132,49 @@ def dfs_recursive(graph, start):
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
-    pass
+    visited = set()
+    s = [start]
+    order = []
+
+    while s:
+        node = s.pop()
+        if node in visited:
+            continue
+        order.append(node)
+        visited.add(node)
+        for neighbor in graph[node]:
+            s.append(neighbor)
+    return order
 
 
 # ============================================================================
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    pass
+    h = []
+    for num in nums:
+        if len(h) >= k:
+            heapq.heappushpop(h, num)
+        else:
+            heapq.heappush(h, num)
+    h.sort(reverse=True)
+    return h
 
 
 # ============================================================================
 # 10. Binary search. `nums` sorted ascending. Return index of `target`, else -1.
 # ============================================================================
 def binary_search(nums, target):
-    pass
+    lo, hi = 0, len(nums)-1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] > target:
+            hi = mid - 1
+        else:
+            lo = mid + 1
+    return -1
 
 
 # ============================================================================
@@ -94,14 +182,26 @@ def binary_search(nums, target):
 #     [1,3,3,5], 3 -> 1.  4 -> 3.  6 -> 4.  0 -> 0.
 # ============================================================================
 def lower_bound(nums, target):
-    pass
+    lo, hi = 0, len(nums)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if nums[mid] >= target:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
 
 
 # ============================================================================
 # 12. Fixed-size sliding window. Max sum of any window of size k, in one pass.
 # ============================================================================
 def max_window_sum(nums, k):
-    pass
+    window = sum(nums[:k])
+    best = window
+    for i in range(k, len(nums)):
+        window += nums[i] - nums[i-k]
+        best = max(best, window)
+    return best
 
 
 # ============================================================================
@@ -109,14 +209,26 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    pass
+    seen = set()
+    left = 0
+    best = 0
+    for right in range(len(s)):
+        while s[right] in seen:
+            seen.remove(s[left])
+            left += 1
+        seen.add(s[right])
+        best = max(best, right - left + 1)
+    return best
 
 
 # ============================================================================
 # 14. [tree / DFS recursion] Max depth of a binary tree. Empty tree -> 0.
 # ============================================================================
 def max_depth(root):
-    pass
+    if not root:
+        return 0
+    
+    return 1 + max(max_depth(root.left), max_depth(root.right))
 
 
 # ============================================================================
@@ -124,7 +236,23 @@ def max_depth(root):
 #     [3,9,20,null,null,15,7] -> [[3],[9,20],[15,7]]. [] -> [].
 # ============================================================================
 def level_order(root):
-    pass
+    if not root:
+        return []
+    
+    q = deque([root])
+    res = []
+
+    while q:
+        level = []
+        for _ in range(len(q)):
+            node = q.popleft()
+            level.append(node.val)
+            if node.left:
+                q.append(node.left)
+            if node.right:
+                q.append(node.right)
+        res.append(level)
+    return res
 
 
 # ============================================================================
@@ -132,7 +260,13 @@ def level_order(root):
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    pass
+    def ok(node: TreeNode, low: int, high: int) -> bool:
+        if not node:
+            return True
+        elif not (low < node.val < high):
+            return False
+        return ok(node.left, low, node.val) and ok(node.right, node.val, high)
+    return ok(root, float('-inf'), float('inf'))
 
 
 # ============================================================================
@@ -140,15 +274,21 @@ def is_valid_bst(root):
 #     BST property — go left/right, don't scan the whole tree.
 # ============================================================================
 def search_bst(root, val):
-    pass
+    while root and root.val != val:
+        root = root.left if root.val > val else root.right
+    return root
 
 
 # ============================================================================
-# 18. [BST delete] Delete the node with value `key`; return the (possibly new) root,
-#     keeping the BST valid. Two-child case: replace with the in-order successor.
+# 18. [hash map grouping] Group anagrams together (order of/within groups free).
+#     Key each word by its sorted letters.
 # ============================================================================
-def delete_bst_node(root, key):
-    pass
+def group_anagrams(strs):
+    groups = {}
+    for word in strs:
+        key = tuple(sorted(word))
+        groups.setdefault(key, []).append(word)
+    return list(groups.values())
 
 
 # ============================================================================
@@ -156,7 +296,28 @@ def delete_bst_node(root, key):
 #     4-directionally (up/down/left/right).
 # ============================================================================
 def num_islands(grid):
-    pass
+    if not grid:
+        return 0
+    
+    rows, cols = len(grid), len(grid[0])
+    count = 0
+
+    def sink(r: int, c: int) -> None:
+        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] == 0:
+            return
+        grid[r][c] = 0
+        sink(r+1, c)
+        sink(r-1, c)
+        sink(r, c+1)
+        sink(r, c-1)
+
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == 1:
+                count += 1
+                sink(r, c)
+    
+    return count
 
 
 # ============================================================================
@@ -164,7 +325,31 @@ def num_islands(grid):
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
-    pass
+    nums = sorted(nums)
+    res = []
+    n = len(nums)
+    for i in range(n - 2):
+        if nums[i] > 0:
+            break
+        if i > 0 and nums[i] == nums[i - 1]:
+            continue                     # skip duplicate anchor
+        lo, hi = i + 1, n - 1
+        while lo < hi:
+            total = nums[i] + nums[lo] + nums[hi]
+            if total < 0:
+                lo += 1
+            elif total > 0:
+                hi -= 1
+            else:
+                res.append([nums[i], nums[lo], nums[hi]])
+                lo += 1
+                hi -= 1
+                while lo < hi and nums[lo] == nums[lo - 1]:
+                    lo += 1              # skip dup
+                while lo < hi and nums[hi] == nums[hi + 1]:
+                    hi -= 1              # skip dup
+    return res
+
 
 
 # ============================================================================
@@ -172,7 +357,14 @@ def three_sum(nums):
 #     (0 if none). [73,74,75,71,69,72,76,73] -> [1,1,4,2,1,1,0,0].
 # ============================================================================
 def daily_temperatures(temperatures):
-    pass
+    res = [0] * len(temperatures)
+    s = []
+    for i, t in enumerate(temperatures):
+        while s and temperatures[s[-1]] < t:
+            j = s.pop()
+            res[j] = i - j
+        s.append(i)
+    return res
 
 
 # ============================================================================
@@ -180,22 +372,14 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    pass
-
-
-# ============================================================================
-# 23. [backtracking] Power set of distinct `nums` — every subset. Order free.
-# ============================================================================
-def subsets(nums):
-    pass
-
-
-# ============================================================================
-# 24. [dynamic programming] Fewest coins (unlimited each) summing to `amount`, or -1
-#     if impossible. coin_change([1,2,5],11) -> 3.
-# ============================================================================
-def coin_change(coins, amount):
-    pass
+    intervals.sort()
+    res = []
+    for iv in intervals:
+        if res and iv[0] <= res[-1][1]:
+            res[-1][1] = max(res[-1][1], iv[1])
+        else:
+            res.append(iv)
+    return res
 
 
 # ████████████████████████████████████████████████████████████████████████████
@@ -205,7 +389,30 @@ def coin_change(coins, amount):
 
 
 # ============================================================================
-# B1. [topological sort] True if all courses can finish (no cycle). prerequisites[i]
+# B1. [BST delete] Delete the node with value `key`; return the (possibly new) root,
+#     keeping the BST valid. Two-child case: replace with the in-order successor.
+# ============================================================================
+def delete_bst_node(root, key):
+    pass
+
+
+# ============================================================================
+# B2. [backtracking] Power set of distinct `nums` — every subset. Order free.
+# ============================================================================
+def subsets(nums):
+    pass
+
+
+# ============================================================================
+# B3. [dynamic programming] Fewest coins (unlimited each) summing to `amount`, or -1
+#     if impossible. coin_change([1,2,5],11) -> 3.
+# ============================================================================
+def coin_change(coins, amount):
+    pass
+
+
+# ============================================================================
+# B4. [topological sort] True if all courses can finish (no cycle). prerequisites[i]
 #     = [a, b] means b before a. course_schedule(2,[[1,0]]) -> True.
 # ============================================================================
 def course_schedule(num_courses, prerequisites):
@@ -213,7 +420,7 @@ def course_schedule(num_courses, prerequisites):
 
 
 # ============================================================================
-# B2. [binary search on the answer] Smallest integer speed to eat all `piles` within
+# B5. [binary search on the answer] Smallest integer speed to eat all `piles` within
 #     `h` hours (ceil(pile/speed) hours each). ([3,6,7,11], 8) -> 4.
 # ============================================================================
 def min_eating_speed(piles, h):
@@ -221,7 +428,7 @@ def min_eating_speed(piles, h):
 
 
 # ============================================================================
-# B3. [2D dynamic programming] Unique paths top-left to bottom-right of an m x n grid
+# B6. [2D dynamic programming] Unique paths top-left to bottom-right of an m x n grid
 #     moving only right/down. unique_paths(3,7) -> 28.
 # ============================================================================
 def unique_paths(m, n):
@@ -229,7 +436,7 @@ def unique_paths(m, n):
 
 
 # ============================================================================
-# B4. [prefix sum + hash map] Count subarrays of `nums` whose sum equals k. Seed
+# B7. [prefix sum + hash map] Count subarrays of `nums` whose sum equals k. Seed
 #     {0: 1}. subarray_sum([1,1,1], 2) -> 2.
 # ============================================================================
 def subarray_sum(nums, k):
@@ -237,15 +444,7 @@ def subarray_sum(nums, k):
 
 
 # ============================================================================
-# B5. [hash map grouping] Group anagrams together (order of/within groups free).
-#     Key each word by its sorted letters.
-# ============================================================================
-def group_anagrams(strs):
-    pass
-
-
-# ============================================================================
-# B6. [tree post-order aggregation] Diameter = number of EDGES on the longest path
+# B8. [tree post-order aggregation] Diameter = number of EDGES on the longest path
 #     between any two nodes (may not pass through root). ([1,2,3,4,5]) -> 3.
 # ============================================================================
 def diameter_of_binary_tree(root):

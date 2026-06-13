@@ -23,7 +23,7 @@ class TreeNode:
         self.right = right
 
 
-# 1. Reverse a linked list.
+# Reverse a linked list.
 # Forget-point: save curr.next BEFORE you overwrite it.
 def reverse_list(head):
     prev = None
@@ -36,7 +36,7 @@ def reverse_list(head):
     return prev              # prev is the new head
 
 
-# 2. Find the middle (second middle on even length).
+# Find the middle (second middle on even length).
 # Forget-point: the loop condition `fast and fast.next` is what makes
 # slow land on the second-middle / not crash.
 def find_middle(head):
@@ -47,7 +47,7 @@ def find_middle(head):
     return slow
 
 
-# 3. Detect a cycle.
+# Detect a cycle.
 # Forget-point: same fast/slow skeleton; they collide iff there's a loop.
 def has_cycle(head):
     slow = fast = head
@@ -59,7 +59,7 @@ def has_cycle(head):
     return False
 
 
-# 4. Delete the middle node (⌊n/2⌋-th, 0-indexed).
+# Delete the middle node (⌊n/2⌋-th, 0-indexed).
 # Forget-point: keep a `prev` one step behind slow so you can splice it out;
 # the fast/fast.next loop lands slow exactly on the middle. Single node -> None.
 def delete_middle_node(head):
@@ -75,7 +75,7 @@ def delete_middle_node(head):
     return head
 
 
-# 5. Odd/Even linked list (group by POSITION, then reattach).
+# Odd/Even linked list (group by POSITION, then reattach).
 # Forget-point: stash the even-head BEFORE rewiring, and reattach it to the tail
 # of the odd chain at the end. Loop while `even and even.next`.
 def odd_even_list(head):
@@ -93,7 +93,7 @@ def odd_even_list(head):
     return head
 
 
-# 6. BFS.
+# BFS.
 # Forget-point: mark visited at ENQUEUE time, not dequeue — otherwise a node
 # can get pushed twice before it's processed.
 def bfs(graph, start):
@@ -110,7 +110,7 @@ def bfs(graph, start):
     return order
 
 
-# 7. Recursive DFS.
+# Recursive DFS.
 # Forget-point: the visited set is shared across calls — pass it down (or close
 # over it), don't recreate it each call.
 def dfs_recursive(graph, start):
@@ -128,7 +128,7 @@ def dfs_recursive(graph, start):
     return order
 
 
-# 8. Iterative DFS.
+# Iterative DFS.
 # Forget-point: check `if node in visited: continue` AFTER popping (a node can
 # be on the stack multiple times). This is why its order differs from 7.
 def dfs_iterative(graph, start):
@@ -146,7 +146,7 @@ def dfs_iterative(graph, start):
     return order
 
 
-# 9. Top K largest, descending.
+# Top K largest, descending.
 # Forget-point: heapq is a MIN-heap. nlargest is the clean way; the manual way
 # below keeps a size-k min-heap and evicts the smallest.
 def top_k(nums, k):
@@ -161,7 +161,7 @@ def top_k(nums, k):
     # return sorted(h, reverse=True)
 
 
-# 10. Binary search.
+# Binary search.
 # Forget-point: use `lo <= hi` (not `<`) so a single-element range is checked,
 # and move past mid with mid+1 / mid-1 or you'll infinite-loop.
 def binary_search(nums, target):
@@ -177,7 +177,7 @@ def binary_search(nums, target):
     return -1
 
 
-# 11. Leftmost insertion point (lower_bound).
+# Leftmost insertion point (lower_bound).
 # Forget-point: this is the "boundary" template, NOT the find template. Use a
 # half-open range hi = len(nums), condition `lo < hi`, and on the >= branch set
 # hi = mid (don't skip mid — it might be the answer). lo is the result.
@@ -192,7 +192,7 @@ def lower_bound(nums, target):
     return lo
 
 
-# 12. Fixed-size sliding window.
+# Fixed-size sliding window.
 # Forget-point: seed the first window's sum, then for each new element ADD it
 # and SUBTRACT the one leaving (nums[i-k]) — don't recompute the whole sum.
 def max_window_sum(nums, k):
@@ -204,7 +204,7 @@ def max_window_sum(nums, k):
     return best
 
 
-# 13. Variable sliding window (longest substring w/o repeats).
+# Variable sliding window (longest substring w/o repeats).
 # Forget-point: when you hit a repeat, shrink from the LEFT in a while-loop
 # until the duplicate is gone — a single left+=1 isn't enough.
 def longest_unique_substring(s):
@@ -220,7 +220,7 @@ def longest_unique_substring(s):
     return best
 
 
-# 14. Max depth of a binary tree.   [tree / DFS recursion]
+# Max depth of a binary tree.   [tree / DFS recursion]
 # Forget-point: base case `not root -> 0`, then 1 + max(children). The +1 is
 # for the current node; recursing without it counts edges, not levels.
 def max_depth(root):
@@ -229,7 +229,7 @@ def max_depth(root):
     return 1 + max(max_depth(root.left), max_depth(root.right))
 
 
-# 15. Level-order traversal.   [tree / BFS]
+# Level-order traversal.   [tree / BFS]
 # Forget-point: snapshot len(q) BEFORE the inner loop so you process exactly the
 # nodes on this level — its children get appended but stay out of this batch.
 def level_order(root):
@@ -250,7 +250,7 @@ def level_order(root):
     return res
 
 
-# 16. Validate BST.   [BST / bounded recursion]
+# Validate BST.   [BST / bounded recursion]
 # Forget-point: pass DOWN a (low, high) range — checking only node vs its direct
 # children misses a deep descendant that violates a far ancestor's bound. Strict.
 def is_valid_bst(root):
@@ -263,7 +263,7 @@ def is_valid_bst(root):
     return ok(root, float("-inf"), float("inf"))
 
 
-# 17. Search in a BST (return the subtree).   [BST search]
+# Search in a BST (return the subtree).   [BST search]
 # Forget-point: use the ordering to pick ONE side each step (O(height)); don't
 # fall back to scanning both subtrees like a generic tree search.
 def search_bst(root, val):
@@ -272,31 +272,18 @@ def search_bst(root, val):
     return root
 
 
-# 18. Delete a node in a BST.   [BST delete]
-# Forget-point: reassign root.left/right = recurse so links rebind. The two-child
-# case: copy the in-order successor (smallest in the RIGHT subtree) into this
-# node, then delete THAT value from the right subtree.
-def delete_bst_node(root, key):
-    if not root:
-        return None
-    if key < root.val:
-        root.left = delete_bst_node(root.left, key)
-    elif key > root.val:
-        root.right = delete_bst_node(root.right, key)
-    else:
-        if not root.left:
-            return root.right            # 0 or 1 child
-        if not root.right:
-            return root.left
-        succ = root.right                # in-order successor = min of right
-        while succ.left:
-            succ = succ.left
-        root.val = succ.val
-        root.right = delete_bst_node(root.right, succ.val)
-    return root
+# Group anagrams.   [hash map grouping]
+# Forget-point: the key is the canonical form — sorted letters (as a tuple, so
+# it's hashable). Bucket every word under its key.
+def group_anagrams(strs):
+    groups = {}
+    for w in strs:
+        key = tuple(sorted(w))
+        groups.setdefault(key, []).append(w)
+    return list(groups.values())
 
 
-# 19. Number of islands.   [grid / flood fill]
+# Number of islands.   [grid / flood fill]
 # Forget-point: SINK each cell you enter (set it to 0) so it can't be recounted,
 # and bounds/zero-check at the TOP of the helper so recursion terminates.
 def num_islands(grid):
@@ -320,14 +307,16 @@ def num_islands(grid):
     return count
 
 
-# 20. 3Sum (unique triplets summing to 0).   [sort + two pointers]
+# 3Sum (unique triplets summing to 0).   [sort + two pointers]
 # Forget-point: sort first; fix i, two-pointer the rest. Skip duplicate i's,
 # AND after a hit skip duplicate lo/hi values — otherwise you emit repeats.
 def three_sum(nums):
     nums = sorted(nums)
     res = []
     n = len(nums)
-    for i in range(n):
+    for i in range(n - 2):
+        if nums[i] > 0:
+            break
         if i > 0 and nums[i] == nums[i - 1]:
             continue                     # skip duplicate anchor
         lo, hi = i + 1, n - 1
@@ -347,8 +336,44 @@ def three_sum(nums):
                     hi -= 1              # skip dup
     return res
 
+# def three_sum(nums):
+#     nums = sorted(nums)
+#     res = []
+#     n = len(nums)
+#     for i in range(n - 2):
+#         if nums[i] > 0:
+#             break
+#         if i > 0 and nums[i] == nums[i - 1]:
+#             continue
+#         seen = set()
+#         for j in range(i + 1, n):
+#             complement = -nums[i] - nums[j]
+#             if complement in seen:
+#                 res.append([nums[i], complement, nums[j]])
+#                 # skip duplicate nums[j]
+#                 while j + 1 < n and nums[j] == nums[j + 1]:
+#                     j += 1
+#             seen.add(nums[j])
+#     return res
 
-# 21. Daily temperatures.   [monotonic stack]
+# def three_sum(nums):
+#     res = set()
+#     dups = set()
+#     seen = {}
+#     for i, a in enumerate(nums):
+#         if a in dups:
+#             continue
+#         dups.add(a)
+#         for j in range(i + 1, len(nums)):
+#             b = nums[j]
+#             complement = -a - b
+#             if complement in seen and seen[complement] == i:
+#                 res.add(tuple(sorted((a, b, complement))))
+#             seen[b] = i
+#     return [list(t) for t in res]
+
+
+# Daily temperatures.   [monotonic stack]
 # Forget-point: the stack holds INDICES with strictly decreasing temps. When the
 # current day is warmer, pop those waiting indices and set answer = i - j.
 def daily_temperatures(temperatures):
@@ -362,7 +387,7 @@ def daily_temperatures(temperatures):
     return res
 
 
-# 22. Merge intervals.   [sort + sweep]
+# Merge intervals.   [sort + sweep]
 # Forget-point: SORT by start first. Then merge when next.start <= last.end,
 # extending with max(last.end, next.end) — don't assume next is fully inside.
 def merge_intervals(intervals):
@@ -376,7 +401,37 @@ def merge_intervals(intervals):
     return merged
 
 
-# 23. Subsets / power set.   [backtracking]
+# ████████████████████████████████████████████████████████████████████████████
+# BONUS ANSWERS — these mirror the non-scoring bonus stubs. Same rule: read till
+# it clicks, close, retype from memory.
+# ████████████████████████████████████████████████████████████████████████████
+
+
+# Delete a node in a BST.   [BST delete]
+# Forget-point: reassign root.left/right = recurse so links rebind. The two-child
+# case: copy the in-order successor (smallest in the RIGHT subtree) into this
+# node, then delete THAT value from the right subtree.
+def delete_bst_node(root, key):
+    if not root:
+        return None
+    if key < root.val:
+        root.left = delete_bst_node(root.left, key)
+    elif key > root.val:
+        root.right = delete_bst_node(root.right, key)
+    else:
+        if not root.left:
+            return root.right            # 0 or 1 child
+        if not root.right:
+            return root.left
+        succ = root.right                # in-order successor = min of right
+        while succ.left:
+            succ = succ.left
+        root.val = succ.val
+        root.right = delete_bst_node(root.right, succ.val)
+    return root
+
+
+# Subsets / power set.   [backtracking]
 # Forget-point: the iterative trick — start with [[]] and for each num, add it
 # to a COPY of every subset so far (doubling the count each pass).
 def subsets(nums):
@@ -396,7 +451,7 @@ def subsets(nums):
     # return res
 
 
-# 24. Coin change (fewest coins).   [dynamic programming]
+# Coin change (fewest coins).   [dynamic programming]
 # Forget-point: dp[0] = 0, every other amount starts at infinity; dp[a] is the
 # min over coins of dp[a-c]+1. Return -1 if dp[amount] is still infinity.
 def coin_change(coins, amount):
@@ -407,12 +462,6 @@ def coin_change(coins, amount):
             if c <= a:
                 dp[a] = min(dp[a], dp[a - c] + 1)
     return dp[amount] if dp[amount] != INF else -1
-
-
-# ████████████████████████████████████████████████████████████████████████████
-# BONUS ANSWERS — these mirror the non-scoring bonus stubs. Same rule: read till
-# it clicks, close, retype from memory.
-# ████████████████████████████████████████████████████████████████████████████
 
 
 # B1. Course schedule (can all courses finish?).   [topological sort / Kahn]
@@ -436,7 +485,7 @@ def course_schedule(num_courses, prerequisites):
     return seen == num_courses    # all reached => acyclic
 
 
-# B2. Koko / min eating speed.   [binary search on the ANSWER]
+# Koko / min eating speed.   [binary search on the ANSWER]
 # Forget-point: you're binary-searching the speed, not an array. Search space is
 # 1..max(pile); feasibility (hours <= h) is monotonic, so use the lower_bound
 # template and return lo. hours per pile = ceil(pile/speed).
@@ -452,7 +501,7 @@ def min_eating_speed(piles, h):
     return lo
 
 
-# B3. Unique paths in an m x n grid.   [2D dynamic programming]
+# Unique paths in an m x n grid.   [2D dynamic programming]
 # Forget-point: each cell = paths-from-above + paths-from-left; first row/col are
 # all 1. A single rolling row works: dp[j] += dp[j-1].
 def unique_paths(m, n):
@@ -463,7 +512,7 @@ def unique_paths(m, n):
     return dp[-1]
 
 
-# B4. Subarray sum equals k (count).   [prefix sum + hash map]
+# Subarray sum equals k (count).   [prefix sum + hash map]
 # Forget-point: seed {0: 1} so a prefix that itself equals k counts; for each
 # running total, add how many earlier prefixes equal total - k.
 def subarray_sum(nums, k):
@@ -477,18 +526,7 @@ def subarray_sum(nums, k):
     return count
 
 
-# B5. Group anagrams.   [hash map grouping]
-# Forget-point: the key is the canonical form — sorted letters (as a tuple, so
-# it's hashable). Bucket every word under its key.
-def group_anagrams(strs):
-    groups = {}
-    for w in strs:
-        key = tuple(sorted(w))
-        groups.setdefault(key, []).append(w)
-    return list(groups.values())
-
-
-# B6. Diameter of a binary tree.   [tree post-order aggregation]
+# Diameter of a binary tree.   [tree post-order aggregation]
 # Forget-point: the answer is updated DURING a depth() helper — at each node the
 # best path THROUGH it is left_depth + right_depth (edges), while the function
 # RETURNS 1 + max(child depths) upward. Track best in an outer variable.

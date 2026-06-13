@@ -38,25 +38,25 @@ CORE = [
     # sliding window
     "max_window_sum", "longest_unique_substring",
     # trees / BST
-    "max_depth", "level_order", "is_valid_bst", "search_bst", "delete_bst_node",
+    "max_depth", "level_order", "is_valid_bst", "search_bst",
+    # hash map grouping
+    "group_anagrams",
     # grid
     "num_islands",
     # arrays / stack 
     "three_sum", "daily_temperatures", 
     # intervals 
     "merge_intervals", 
-    # backtracking
-    "subsets", 
-    # dp
-    "coin_change",
 ]
 
 BONUS = [
+    "delete_bst_node",          # BST 
+    "subsets",                  # backtracking 
+    "coin_change",              # dp
     "course_schedule",          # topological sort
     "min_eating_speed",         # binary search on the answer
     "unique_paths",             # 2D dynamic programming
     "subarray_sum",             # prefix sum + hash map
-    "group_anagrams",           # hash map grouping
     "diameter_of_binary_tree",  # tree post-order aggregation
 ]
 # ============================================================================
@@ -461,7 +461,7 @@ def run_drills(ns):
             print("  TIME:  timer only started this run — code from the stubs to clock a real session")
             os.remove(start_file)
         else:
-            print(f"  TIME:  {_fmt(elapsed)}   (target: under 13m)")
+            print(f"  TIME:  {_fmt(elapsed)}")
             os.remove(start_file)
             removed = _sweep_others(daily)
             if removed:
