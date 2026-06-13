@@ -4,9 +4,12 @@ DRILL GENERATOR + SHARED TEST RUNNER
 Daily workflow:
   1. Run THIS file each morning:   python start.py
      -> stamps a fresh MM-DD-YYYY.py (just the stubs) beside start.py, opens it.
+     -> if today's file already exists, stamps the NEXT one: MM-DD-YYYY_2.py,
+        _3.py, ... (a fresh cold attempt). Same-day files live side by side.
      -> running start.py does NOT start any timer.
   2. Fill in the functions and click Run. The clock starts on that first run.
-  3. On a timed full clear of the CORE set, the previous day's file is deleted.
+  3. On a timed full clear of the CORE set, every EARLIER DAY's file is deleted.
+     Today's own siblings are kept until a later day is full-scored.
 
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  TO REORDER OR RE-TIER PROBLEMS: just edit the CORE and BONUS lists below. ║
@@ -380,23 +383,34 @@ def _fmt(secs):
     return f"{m}m {s:02d}s"
 
 
+# MM-DD-YYYY.py  OR  MM-DD-YYYY_2.py, _3.py, ...  — group(1) captures the date stem.
+_DAILY_RE = __import__("re").compile(r"^(\d{2}-\d{2}-\d{4})(?:_\d+)?\.py$")
+
+
 def _sweep_others(current_file):
-    """Delete every drill file except current (and their .start markers)."""
-    import re
+    """Delete every drill file from a DIFFERENT day than `current_file`
+    (and their .start markers). Same-day siblings — e.g. 06-13-2026.py and
+    06-13-2026_2.py — are kept together; they only get swept once a LATER
+    day is full-scored."""
     folder = os.path.dirname(os.path.abspath(current_file))
     keep = os.path.basename(current_file)
-    daily_re = re.compile(r"^\d{2}-\d{2}-\d{4}\.py$")
+    cur = _DAILY_RE.match(keep)
+    cur_stem = cur.group(1) if cur else None
     removed = []
     for fn in os.listdir(folder):
-        if daily_re.match(fn) and fn != keep:
-            try:
-                os.remove(os.path.join(folder, fn))
-                marker = os.path.join(folder, "." + fn + ".start")
-                if os.path.exists(marker):
-                    os.remove(marker)
-                removed.append(fn)
-            except OSError:
-                pass
+        m = _DAILY_RE.match(fn)
+        if not m or fn == keep:
+            continue
+        if m.group(1) == cur_stem:
+            continue                      # same-day sibling — leave it
+        try:
+            os.remove(os.path.join(folder, fn))
+            marker = os.path.join(folder, "." + fn + ".start")
+            if os.path.exists(marker):
+                os.remove(marker)
+            removed.append(fn)
+        except OSError:
+            pass
     return removed
 
 
@@ -465,7 +479,8 @@ def run_drills(ns):
             os.remove(start_file)
             removed = _sweep_others(daily)
             if removed:
-                print(f"  CLEANED: removed previous ({', '.join(removed)}) — one file left")
+                print(f"  CLEANED: removed earlier day(s): {', '.join(removed)}")
+                print(f"  (today's siblings stay until a later day is full-scored)")
     else:
         print(f"  ELAPSED: {_fmt(elapsed)} so far")
 
@@ -558,34 +573,57 @@ def _open_in_editor(path):
         pass
 
 
+def _next_free_path(here, stem):
+    """Return (path, nth) for the next un-taken drill file for `stem` (the
+    MM-DD-YYYY date). The first is stem.py (nth=1); then stem_2.py (nth=2),
+    stem_3.py (nth=3), ... — so re-running start.py the same day makes a fresh
+    sibling instead of clobbering or refusing."""
+    first = os.path.join(here, stem + ".py")
+    if not os.path.exists(first):
+        return first, 1
+    n = 2
+    while True:
+        cand = os.path.join(here, f"{stem}_{n}.py")
+        if not os.path.exists(cand):
+            return cand, n
+        n += 1
+
+
 def _stamp_today():
-    """Stamp today's drill file (stubs only) beside start.py and open it.
-    The previous file is kept until you full-score today's — the runner deletes it then."""
+    """Stamp a drill file (stubs only) beside start.py and open it.
+    - If today has no file yet -> MM-DD-YYYY.py.
+    - If it already has one    -> the next sibling MM-DD-YYYY_2.py, _3.py, ...
+    All of today's files are kept until a LATER day is full-scored; the runner
+    deletes every earlier day then. `--force` overwrites today's BASE file
+    (MM-DD-YYYY.py) instead of making a new sibling."""
     import datetime, sys
 
     here = os.path.dirname(os.path.abspath(__file__))
     today = datetime.date.today()
-    name = today.strftime("%m-%d-%Y") + ".py"
-    out_path = os.path.join(here, name)
-
-    existed = os.path.exists(out_path)
+    stem = today.strftime("%m-%d-%Y")
     force = "--force" in sys.argv
 
-    if existed and not force:
-        print(f"\n  {name} already exists — leaving it alone (your work is safe).")
-        print(f"  Opening it... click Run to start the clock.")
-        print(f"  (Run  `python {os.path.basename(__file__)} --force`  to overwrite.)\n")
-        _open_in_editor(out_path)
-        return
+    if force:
+        out_path, nth = os.path.join(here, stem + ".py"), 1
+        existed = os.path.exists(out_path)
+    else:
+        out_path, nth = _next_free_path(here, stem)
+        existed = False                   # we always pick a free name
 
-    daily = _DAILY_HEADER.format(date=today.strftime("%m-%d-%Y")) + _build_daily_body() + _DAILY_FOOTER
+    daily = _DAILY_HEADER.format(date=stem) + _build_daily_body() + _DAILY_FOOTER
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(daily)
 
-    verb = "Overwrote" if existed else "Stamped"
-    print(f"\n  {verb}  {name}  ({len(CORE)} core + {len(BONUS)} bonus)")
+    name = os.path.basename(out_path)
+    counts = f"({len(CORE)} core + {len(BONUS)} bonus)"
+    if force and existed:
+        print(f"\n  Overwrote  {name}  {counts}")
+    elif nth == 1:
+        print(f"\n  Stamped  {name}  {counts}")
+    else:
+        print(f"\n  Stamped  {name}  — attempt #{nth} for today  {counts}")
     print(f"  Opening it... the timer starts when you click Run, not now.")
-    print(f"  (Yesterday's file stays until you full-score here, then it's deleted.)\n")
+    print(f"  (All of today's files stay until you full-score a LATER day — then they're deleted.)\n")
     _open_in_editor(out_path)
 
 
