@@ -278,9 +278,18 @@ def search_bst(root, val):
 def group_anagrams(strs):
     groups = {}
     for w in strs:
-        key = tuple(sorted(w))
-        groups.setdefault(key, []).append(w)
+        count = [0] * 26
+        for ch in w:
+            count[ord(ch) - ord('a')] += 1
+        groups.setdefault(tuple(count), []).append(w)
     return list(groups.values())
+
+# def group_anagrams(strs):
+#     groups = {}
+#     for w in strs:
+#         key = tuple(sorted(w))
+#         groups.setdefault(key, []).append(w)
+#     return list(groups.values())
 
 
 # Number of islands.   [grid / flood fill]
