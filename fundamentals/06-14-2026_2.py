@@ -1,5 +1,5 @@
 """
-06-13-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-14-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -77,7 +77,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-
+    
     odd = head
     even = head.next
     even_head = even
@@ -88,7 +88,6 @@ def odd_even_list(head):
         even = even.next
     odd.next = even_head
     return head
-         
 
 
 # ============================================================================
@@ -103,7 +102,7 @@ def bfs(graph, start):
     while q:
         node = q.popleft()
         order.append(node)
-        for neighbor in graph[node]:
+        for neighbor in graph:
             if neighbor not in visited:
                 visited.add(neighbor)
                 q.append(neighbor)
@@ -159,13 +158,13 @@ def top_k(nums, k):
 # 10. Binary search. `nums` sorted ascending. Return index of `target`, else -1.
 # ============================================================================
 def binary_search(nums, target):
-    lo, hi = 0, len(nums)-1
+    lo, hi = 0, len(nums) - 1
     while lo <= hi:
         mid = (lo + hi) // 2
         if nums[mid] == target:
             return mid
         elif nums[mid] > target:
-            hi = mid - 1
+            hi = mid - 1 
         else:
             lo = mid + 1
     return -1
@@ -203,8 +202,7 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
-    left, best = 0, 0
+    seen, left, best =  set(), 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -219,7 +217,7 @@ def longest_unique_substring(s):
 # ============================================================================
 def max_depth(root):
     if not root:
-        return  0
+        return 0
     
     return 1 + max(max_depth(root.left), max_depth(root.right))
 
@@ -232,8 +230,9 @@ def level_order(root):
     if not root:
         return []
 
-    q = deque([root])
     res = []
+    q = deque([root])
+
     while q:
         level = []
         for _ in range(len(q)):
@@ -247,18 +246,18 @@ def level_order(root):
     return res
 
 
-
 # ============================================================================
 # 16. [BST / bounded recursion] True if a valid BST (every left subtree < node <
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    def ok(node: TreeNode, lo: int, hi: int) -> bool:
+    def ok(node: TreeNode, lo: float, hi: float) -> bool:
         if not node:
             return True
         if not (lo < node.val < hi):
             return False
         return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
+    
     return ok(root, float('-inf'), float('inf'))
 
 
@@ -280,14 +279,13 @@ def search_bst(root, val):
 #     Key each word by its sorted letters.
 # ============================================================================
 def group_anagrams(strs):
-    hashmap = {}
+    groups = {}
     for w in strs:
         letters = [0] * 26
         for c in w:
-            letters[ord(c)-ord('a')] += 1
-        hashmap.setdefault(tuple(letters), []).append(w)
-    return list(hashmap.values())
-
+            letters[ord(c) - ord('a')] += 1
+        groups.setdefault(tuple(letters), []).append(w)
+    return list(groups.values())
 
 
 # ============================================================================
@@ -298,8 +296,7 @@ def num_islands(grid):
     if not grid:
         return 0
     
-    count = 0
-    rows, cols = len(grid), len(grid[0])
+    count, rows, cols = 0, len(grid), len(grid[0])
 
     def sink(r: int, c: int) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
@@ -315,6 +312,7 @@ def num_islands(grid):
             if grid[r][c] == 1:
                 count += 1
                 sink(r, c)
+    
     return count
 
 
@@ -323,26 +321,25 @@ def num_islands(grid):
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
-    nums.sort()
     res = []
+    nums.sort()
     for i, n in enumerate(nums):
-        if i > 0 and nums[i] == nums[i-1]:
+        if i > 0 and nums[i] == nums[i - 1]:
             continue
-        left = i + 1
-        right = len(nums)-1
+        left, right = i + 1, len(nums) - 1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
-                right -= 1
+                left += 1
             elif threeSum < 0:
-                left += 1
+                right -= 1
             else:
-                res.append((n, nums[left], nums[right]))
+                res.append(tuple([n, nums[left], nums[right]]))
                 left += 1
                 right -= 1
-                while left < right and nums[left] == nums[left+1]:
+                while left < right and nums[left] == nums[left + 1]:
                     left += 1
-                while right > left and nums[right-1] == nums[right]:
+                while right > left and nums[right - 1] == nums[right]:
                     right -= 1
     return res
 
@@ -375,7 +372,6 @@ def merge_intervals(intervals):
         else:
             res.append(iv)
     return res
-        
 
 
 # ████████████████████████████████████████████████████████████████████████████
