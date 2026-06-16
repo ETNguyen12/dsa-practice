@@ -1,5 +1,5 @@
 """
-06-14-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-16-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -77,7 +77,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-    
+
     odd = head
     even = head.next
     even_head = even
@@ -98,11 +98,10 @@ def bfs(graph, start):
     visited = {start}
     q = deque([start])
     order = []
-
     while q:
         node = q.popleft()
         order.append(node)
-        for neighbor in graph:
+        for neighbor in graph[node]:
             if neighbor not in visited:
                 visited.add(neighbor)
                 q.append(neighbor)
@@ -116,15 +115,16 @@ def dfs_recursive(graph, start):
     visited = set()
     order = []
 
-    def go(node: ListNode) -> None:
+    def dfs(node: ListNode) -> None:
         order.append(node)
         visited.add(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
-                go(neighbor)
-
-    go(start)
+                dfs(neighbor)
+    
+    dfs(start)
     return order
+
 
 
 # ============================================================================
@@ -144,6 +144,7 @@ def dfs_iterative(graph, start):
         visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
+    
     return order
 
 
@@ -151,22 +152,22 @@ def dfs_iterative(graph, start):
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse=True)
+    return sorted(heapq.nlargest(k, nums), reverse = True)
 
 
 # ============================================================================
 # 10. Binary search. `nums` sorted ascending. Return index of `target`, else -1.
 # ============================================================================
 def binary_search(nums, target):
-    lo, hi = 0, len(nums) - 1
+    lo, hi = 0, len(nums)-1
     while lo <= hi:
         mid = (lo + hi) // 2
         if nums[mid] == target:
             return mid
         elif nums[mid] > target:
-            hi = mid - 1 
+            hi = mid - 1
         else:
-            lo = mid + 1
+            lo = mid + 1 
     return -1
 
 
@@ -202,7 +203,8 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen, left, best =  set(), 0, 0
+    seen = set()
+    best, left = 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -218,7 +220,7 @@ def longest_unique_substring(s):
 def max_depth(root):
     if not root:
         return 0
-    
+
     return 1 + max(max_depth(root.left), max_depth(root.right))
 
 
@@ -230,9 +232,8 @@ def level_order(root):
     if not root:
         return []
 
-    res = []
     q = deque([root])
-
+    res = []
     while q:
         level = []
         for _ in range(len(q)):
@@ -254,10 +255,10 @@ def is_valid_bst(root):
     def ok(node: TreeNode, lo: float, hi: float) -> bool:
         if not node:
             return True
-        if not (lo < node.val < hi):
+        elif not (lo < node.val < hi):
             return False
         return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
-    
+
     return ok(root, float('-inf'), float('inf'))
 
 
@@ -268,10 +269,9 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-
-    while root and root.val != val:
-        root = root.left if root.val > val else root.right
-    return root
+    elif root.val == val:
+        return root
+    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
 
 
 # ============================================================================
@@ -294,12 +294,12 @@ def group_anagrams(strs):
 # ============================================================================
 def num_islands(grid):
     if not grid:
-        return 0
+        return None
     
     count, rows, cols = 0, len(grid), len(grid[0])
 
     def sink(r: int, c: int) -> None:
-        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
+        if r < 0 or c < 0 or c >= cols or r >= rows or grid[r][c] != 1:
             return
         grid[r][c] = 0
         sink(r+1, c)
@@ -312,7 +312,6 @@ def num_islands(grid):
             if grid[r][c] == 1:
                 count += 1
                 sink(r, c)
-    
     return count
 
 
@@ -321,27 +320,28 @@ def num_islands(grid):
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
-    res = []
     nums.sort()
+    res = []
     for i, n in enumerate(nums):
-        if i > 0 and nums[i] == nums[i - 1]:
+        if i > 0 and nums[i-1] == nums[i]:
             continue
-        left, right = i + 1, len(nums) - 1
+        left, right = i+1, len(nums)-1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
-                left += 1
+                right -= 1
             elif threeSum < 0:
-                right -= 1
+                left += 1
             else:
-                res.append(tuple([n, nums[left], nums[right]]))
+                res.append([n, nums[left], nums[right]])
                 left += 1
                 right -= 1
-                while left < right and nums[left] == nums[left + 1]:
+                while left < right and nums[left] == nums[left+1]:
                     left += 1
-                while right > left and nums[right - 1] == nums[right]:
-                    right -= 1
+                while right > left and nums[right-1] == nums[right]:
+                    right += 1
     return res
+
 
 
 # ============================================================================
@@ -368,7 +368,7 @@ def merge_intervals(intervals):
     intervals.sort()
     for iv in intervals:
         if res and iv[0] <= res[-1][1]:
-            res[-1][1] = max(res[-1][1], iv[1])
+            res[-1][1] = max(res[-1][1], iv[1]) 
         else:
             res.append(iv)
     return res
