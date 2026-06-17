@@ -1,5 +1,5 @@
 """
-06-16-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-17-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -59,7 +59,7 @@ def has_cycle(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-
+    
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -98,6 +98,7 @@ def bfs(graph, start):
     visited = {start}
     q = deque([start])
     order = []
+
     while q:
         node = q.popleft()
         order.append(node)
@@ -112,8 +113,8 @@ def bfs(graph, start):
 # 7. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    visited = set()
     order = []
+    visited = set()
 
     def dfs(node: ListNode) -> None:
         order.append(node)
@@ -121,10 +122,9 @@ def dfs_recursive(graph, start):
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
-    
+
     dfs(start)
     return order
-
 
 
 # ============================================================================
@@ -144,7 +144,6 @@ def dfs_iterative(graph, start):
         visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
-    
     return order
 
 
@@ -152,7 +151,10 @@ def dfs_iterative(graph, start):
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse = True)
+    heapq.heapify(nums)
+    while len(nums) > k:
+        heapq.heappop(nums)
+    return sorted(nums, reverse=True)
 
 
 # ============================================================================
@@ -167,7 +169,7 @@ def binary_search(nums, target):
         elif nums[mid] > target:
             hi = mid - 1
         else:
-            lo = mid + 1 
+            lo = mid + 1
     return -1
 
 
@@ -204,7 +206,8 @@ def max_window_sum(nums, k):
 # ============================================================================
 def longest_unique_substring(s):
     seen = set()
-    best, left = 0, 0
+    best = 0
+    left = 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -220,7 +223,6 @@ def longest_unique_substring(s):
 def max_depth(root):
     if not root:
         return 0
-
     return 1 + max(max_depth(root.left), max_depth(root.right))
 
 
@@ -231,7 +233,7 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-
+    
     q = deque([root])
     res = []
     while q:
@@ -255,7 +257,7 @@ def is_valid_bst(root):
     def ok(node: TreeNode, lo: float, hi: float) -> bool:
         if not node:
             return True
-        elif not (lo < node.val < hi):
+        if not (lo < node.val < hi):
             return False
         return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
 
@@ -267,11 +269,9 @@ def is_valid_bst(root):
 #     BST property — go left/right, don't scan the whole tree.
 # ============================================================================
 def search_bst(root, val):
-    if not root:
-        return None
-    elif root.val == val:
-        return root
-    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
+    while root and root.val != val:
+        root = root.left if root.val > val else root.right
+    return root
 
 
 # ============================================================================
@@ -280,12 +280,13 @@ def search_bst(root, val):
 # ============================================================================
 def group_anagrams(strs):
     groups = {}
+    a = ord('a')
     for w in strs:
         letters = [0] * 26
         for c in w:
-            letters[ord(c) - ord('a')] += 1
+            letters[ord(c) - a] += 1
         groups.setdefault(tuple(letters), []).append(w)
-    return list(groups.values())
+    return groups.values()
 
 
 # ============================================================================
@@ -294,7 +295,7 @@ def group_anagrams(strs):
 # ============================================================================
 def num_islands(grid):
     if not grid:
-        return None
+        return 0
     
     count, rows, cols = 0, len(grid), len(grid[0])
 
@@ -306,7 +307,7 @@ def num_islands(grid):
         sink(r-1, c)
         sink(r, c+1)
         sink(r, c-1)
-
+    
     for r in range(rows):
         for c in range(cols):
             if grid[r][c] == 1:
@@ -325,7 +326,7 @@ def three_sum(nums):
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
             continue
-        left, right = i+1, len(nums)-1
+        left, right = i + 1, len(nums) - 1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
@@ -336,12 +337,11 @@ def three_sum(nums):
                 res.append([n, nums[left], nums[right]])
                 left += 1
                 right -= 1
-                while left < right and nums[left] == nums[left+1]:
+                while left < right and nums[left] == nums[left + 1]:
                     left += 1
-                while right > left and nums[right-1] == nums[right]:
-                    right += 1
+                while right > left and nums[right - 1] == nums[right]:
+                    right -= 1
     return res
-
 
 
 # ============================================================================
@@ -366,11 +366,11 @@ def daily_temperatures(temperatures):
 def merge_intervals(intervals):
     res = []
     intervals.sort()
-    for iv in intervals:
-        if res and iv[0] <= res[-1][1]:
-            res[-1][1] = max(res[-1][1], iv[1]) 
+    for start, end in intervals:
+        if res and start <= res[-1][1]:
+            res[-1][1] = max(res[-1][1], end)
         else:
-            res.append(iv)
+            res.append([start, end])
     return res
 
 
