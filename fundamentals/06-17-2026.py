@@ -1,5 +1,5 @@
 """
-06-17-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-18-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -26,7 +26,6 @@ def reverse_list(head):
         prev = head
         head = nxt
     return prev
-
 
 # ============================================================================
 # 2. Find the middle node (second middle on even length). Fast/slow pointers.
@@ -59,7 +58,7 @@ def has_cycle(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-    
+
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -113,17 +112,17 @@ def bfs(graph, start):
 # 7. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    order = []
     visited = set()
+    order = []
 
-    def dfs(node: ListNode) -> None:
-        order.append(node)
+    def go(node: ListNode) -> None:
         visited.add(node)
+        order.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
-                dfs(neighbor)
+                go(neighbor)
 
-    dfs(start)
+    go(start)
     return order
 
 
@@ -151,10 +150,7 @@ def dfs_iterative(graph, start):
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    heapq.heapify(nums)
-    while len(nums) > k:
-        heapq.heappop(nums)
-    return sorted(nums, reverse=True)
+    return sorted(heapq.nlargest(k, nums), reverse=True)
 
 
 # ============================================================================
@@ -205,9 +201,7 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
-    best = 0
-    left = 0
+    seen, left, best = set(), 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -223,6 +217,7 @@ def longest_unique_substring(s):
 def max_depth(root):
     if not root:
         return 0
+    
     return 1 + max(max_depth(root.left), max_depth(root.right))
 
 
@@ -233,7 +228,7 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-    
+
     q = deque([root])
     res = []
     while q:
@@ -254,10 +249,10 @@ def level_order(root):
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    def ok(node: TreeNode, lo: float, hi: float) -> bool:
+    def ok(node, lo, hi):
         if not node:
             return True
-        if not (lo < node.val < hi):
+        elif not (lo < node.val < hi):
             return False
         return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
 
@@ -269,8 +264,11 @@ def is_valid_bst(root):
 #     BST property — go left/right, don't scan the whole tree.
 # ============================================================================
 def search_bst(root, val):
+    if not root:
+        return None
+
     while root and root.val != val:
-        root = root.left if root.val > val else root.right
+        root = root.left if val < root.val else root.right
     return root
 
 
@@ -287,6 +285,7 @@ def group_anagrams(strs):
             letters[ord(c) - a] += 1
         groups.setdefault(tuple(letters), []).append(w)
     return groups.values()
+            
 
 
 # ============================================================================
@@ -299,20 +298,20 @@ def num_islands(grid):
     
     count, rows, cols = 0, len(grid), len(grid[0])
 
-    def sink(r: int, c: int) -> None:
-        if r < 0 or c < 0 or c >= cols or r >= rows or grid[r][c] != 1:
+    def sink(r, c):
+        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
         sink(r+1, c)
         sink(r-1, c)
         sink(r, c+1)
         sink(r, c-1)
-    
+
     for r in range(rows):
         for c in range(cols):
             if grid[r][c] == 1:
-                count += 1
                 sink(r, c)
+                count += 1
     return count
 
 
@@ -321,12 +320,12 @@ def num_islands(grid):
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
-    nums.sort()
     res = []
+    nums.sort()
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
             continue
-        left, right = i + 1, len(nums) - 1
+        left, right = i + 1, len(nums)-1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
@@ -337,9 +336,9 @@ def three_sum(nums):
                 res.append([n, nums[left], nums[right]])
                 left += 1
                 right -= 1
-                while left < right and nums[left] == nums[left + 1]:
-                    left += 1
-                while right > left and nums[right - 1] == nums[right]:
+                while left < right and nums[left] == nums[left+1]:
+                    left +=1
+                while right > left and nums[right-1] == nums[right]:
                     right -= 1
     return res
 
