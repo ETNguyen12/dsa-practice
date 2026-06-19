@@ -50,10 +50,11 @@ CORE = [
     "three_sum", "daily_temperatures", 
     # intervals 
     "merge_intervals", 
+    # BST
+    "delete_bst_node",
 ]
 
 BONUS = [
-    "delete_bst_node",          # BST 
     "subsets",                  # backtracking 
     "coin_change",              # dp
     "course_schedule",          # topological sort

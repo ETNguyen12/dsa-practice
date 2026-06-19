@@ -410,12 +410,6 @@ def merge_intervals(intervals):
     return merged
 
 
-# ████████████████████████████████████████████████████████████████████████████
-# BONUS ANSWERS — these mirror the non-scoring bonus stubs. Same rule: read till
-# it clicks, close, retype from memory.
-# ████████████████████████████████████████████████████████████████████████████
-
-
 # Delete a node in a BST.   [BST delete]
 # Forget-point: reassign root.left/right = recurse so links rebind. The two-child
 # case: copy the in-order successor (smallest in the RIGHT subtree) into this
@@ -438,6 +432,12 @@ def delete_bst_node(root, key):
         root.val = succ.val
         root.right = delete_bst_node(root.right, succ.val)
     return root
+
+
+# ████████████████████████████████████████████████████████████████████████████
+# BONUS ANSWERS — these mirror the non-scoring bonus stubs. Same rule: read till
+# it clicks, close, retype from memory.
+# ████████████████████████████████████████████████████████████████████████████
 
 
 # Subsets / power set.   [backtracking]
