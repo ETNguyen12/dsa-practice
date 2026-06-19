@@ -1,5 +1,5 @@
 """
-06-18-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-19-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -77,10 +77,11 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-    
+
     odd = head
     even = head.next
     even_head = even
+
     while even and even.next:
         odd.next = even.next
         odd = odd.next
@@ -116,7 +117,7 @@ def dfs_recursive(graph, start):
     visited = set()
     order = []
 
-    def dfs(node: ListNode) -> None:
+    def dfs(node):
         order.append(node)
         visited.add(node)
         for neighbor in graph[node]:
@@ -140,8 +141,8 @@ def dfs_iterative(graph, start):
         node = s.pop()
         if node in visited:
             continue
-        visited.add(node)
         order.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return order
@@ -151,12 +152,7 @@ def dfs_iterative(graph, start):
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    h = []
-    for num in nums:
-        heapq.heappush(h, num)
-        if len(h) > k:
-            heapq.heappop(h)
-    return sorted(h, reverse=True)
+    return sorted(heapq.nlargest(k, nums), reverse=True)
 
 
 # ============================================================================
@@ -207,7 +203,9 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen, best, left = set(), 0, 0
+    seen = set()
+    left = 0
+    best = 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -255,7 +253,7 @@ def level_order(root):
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    def ok(node, lo, hi) -> bool: 
+    def ok(node, lo, hi):
         if not node:
             return True
         if not (lo < node.val < hi):
@@ -272,7 +270,7 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-
+    
     while root and root.val != val:
         root = root.left if root.val > val else root.right
     return root
@@ -292,7 +290,6 @@ def group_anagrams(strs):
     return groups.values()
 
 
-
 # ============================================================================
 # 19. [grid / flood fill] Count islands in a 2D grid of 0s and 1s, connected
 #     4-directionally (up/down/left/right).
@@ -304,7 +301,7 @@ def num_islands(grid):
     count, rows, cols = 0, len(grid), len(grid[0])
 
     def sink(r, c):
-        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
+        if c < 0 or r < 0 or c >= cols or r >= rows or grid[r][c] != 1:
             return
         grid[r][c] = 0
         sink(r+1, c)
@@ -327,26 +324,26 @@ def num_islands(grid):
 def three_sum(nums):
     nums.sort()
     res = []
-    for i, num in enumerate(nums):
+    for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
             continue
-        left, right = i + 1, len(nums)-1
+        left = i + 1
+        right = len(nums) - 1
         while left < right:
-            threeSum = num + nums[left] + nums[right]
+            threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
                 right -= 1
             elif threeSum < 0:
                 left += 1
             else:
-                res.append([num, nums[left], nums[right]])
+                res.append([n, nums[left], nums[right]])
                 left += 1
                 right -= 1
-                while left < right and nums[left] == nums[left + 1]:
+                while left < right and nums[left-1] == nums[left]:
                     left += 1
-                while right > left and nums[right - 1] == nums[right]:
+                while right > left and nums[right] == nums[right+1]:
                     right -= 1
     return res
-
 
 
 # ============================================================================
@@ -369,8 +366,8 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    intervals.sort()
     res = []
+    intervals.sort()
     for start, end in intervals:
         if res and start <= res[-1][1]:
             res[-1][1] = max(res[-1][1], end)
@@ -401,8 +398,6 @@ def delete_bst_node(root, key):
         root.val = succ.val
         root.right = delete_bst_node(root.right, succ.val)
     return root
-
-
 
 
 # ████████████████████████████████████████████████████████████████████████████
