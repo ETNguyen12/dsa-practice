@@ -1,5 +1,5 @@
 """
-06-19-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-23-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -59,7 +59,7 @@ def has_cycle(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-    
+
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -81,7 +81,6 @@ def odd_even_list(head):
     odd = head
     even = head.next
     even_head = even
-
     while even and even.next:
         odd.next = even.next
         odd = odd.next
@@ -118,12 +117,12 @@ def dfs_recursive(graph, start):
     order = []
 
     def dfs(node):
-        order.append(node)
         visited.add(node)
+        order.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
-
+    
     dfs(start)
     return order
 
@@ -134,8 +133,7 @@ def dfs_recursive(graph, start):
 # ============================================================================
 def dfs_iterative(graph, start):
     visited = set()
-    s = [start]
-    order = []
+    order, s = [], [start]
 
     while s:
         node = s.pop()
@@ -159,7 +157,7 @@ def top_k(nums, k):
 # 10. Binary search. `nums` sorted ascending. Return index of `target`, else -1.
 # ============================================================================
 def binary_search(nums, target):
-    lo, hi = 0, len(nums)-1
+    lo, hi = 0, len(nums) - 1
     while lo <= hi:
         mid = (lo + hi) // 2
         if nums[mid] == target:
@@ -204,8 +202,8 @@ def max_window_sum(nums, k):
 # ============================================================================
 def longest_unique_substring(s):
     seen = set()
-    left = 0
     best = 0
+    left = 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -232,9 +230,9 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-
-    res = []
+    
     q = deque([root])
+    res = []
     while q:
         level = []
         for _ in range(len(q)):
@@ -253,13 +251,12 @@ def level_order(root):
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    def ok(node, lo, hi):
+    def ok(node, lo, hi) -> bool:
         if not node:
             return True
         if not (lo < node.val < hi):
             return False
         return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
-
     return ok(root, float('-inf'), float('inf'))
 
 
@@ -298,22 +295,23 @@ def num_islands(grid):
     if not grid:
         return 0
     
-    count, rows, cols = 0, len(grid), len(grid[0])
+    count = 0
+    rows, cols = len(grid), len(grid[0])
 
-    def sink(r, c):
-        if c < 0 or r < 0 or c >= cols or r >= rows or grid[r][c] != 1:
+    def dfs(r, c):
+        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
-        sink(r+1, c)
-        sink(r-1, c)
-        sink(r, c+1)
-        sink(r, c-1)
+        dfs(r+1, c)
+        dfs(r-1, c)
+        dfs(r, c+1)
+        dfs(r, c-1)
 
     for r in range(rows):
         for c in range(cols):
             if grid[r][c] == 1:
                 count += 1
-                sink(r, c)
+                dfs(r, c)
     return count
 
 
@@ -322,18 +320,17 @@ def num_islands(grid):
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
-    nums.sort()
     res = []
+    nums.sort()
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
             continue
-        left = i + 1
-        right = len(nums) - 1
+        left, right = i + 1, len(nums) - 1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
                 right -= 1
-            elif threeSum < 0:
+            elif threeSum < 0 :
                 left += 1
             else:
                 res.append([n, nums[left], nums[right]])
