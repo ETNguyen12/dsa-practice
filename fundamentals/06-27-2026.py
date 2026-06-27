@@ -1,5 +1,5 @@
 """
-06-23-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-27-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -32,7 +32,7 @@ def reverse_list(head):
 # 2. Find the middle node (second middle on even length). Fast/slow pointers.
 # ============================================================================
 def find_middle(head):
-    slow = fast = head
+    slow, fast = head, head
     while fast and fast.next:
         slow = slow.next
         fast = fast.next.next
@@ -59,7 +59,7 @@ def has_cycle(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-
+    
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -77,7 +77,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-
+    
     odd = head
     even = head.next
     even_head = even
@@ -116,7 +116,7 @@ def dfs_recursive(graph, start):
     visited = set()
     order = []
 
-    def dfs(node):
+    def dfs(node: ListNode) -> None:
         visited.add(node)
         order.append(node)
         for neighbor in graph[node]:
@@ -133,7 +133,8 @@ def dfs_recursive(graph, start):
 # ============================================================================
 def dfs_iterative(graph, start):
     visited = set()
-    order, s = [], [start]
+    order = []
+    s = [start]
 
     while s:
         node = s.pop()
@@ -150,14 +151,20 @@ def dfs_iterative(graph, start):
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse=True)
+    h = []
+    for num in nums:
+        heapq.heappush(h, num)
+        if len(h) > k:
+            heapq.heappop(h)
+    h.sort(reverse=True)
+    return h
 
 
 # ============================================================================
 # 10. Binary search. `nums` sorted ascending. Return index of `target`, else -1.
 # ============================================================================
 def binary_search(nums, target):
-    lo, hi = 0, len(nums) - 1
+    lo, hi = 0, len(nums)-1
     while lo <= hi:
         mid = (lo + hi) // 2
         if nums[mid] == target:
@@ -202,8 +209,9 @@ def max_window_sum(nums, k):
 # ============================================================================
 def longest_unique_substring(s):
     seen = set()
-    best = 0
     left = 0
+    best = 0
+    
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -230,9 +238,9 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-    
-    q = deque([root])
+
     res = []
+    q = deque([root])
     while q:
         level = []
         for _ in range(len(q)):
@@ -251,12 +259,13 @@ def level_order(root):
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    def ok(node, lo, hi) -> bool:
+    def ok(node, lo, hi):
         if not node:
             return True
         if not (lo < node.val < hi):
             return False
         return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
+
     return ok(root, float('-inf'), float('inf'))
 
 
@@ -267,7 +276,7 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-    
+
     while root and root.val != val:
         root = root.left if root.val > val else root.right
     return root
@@ -284,7 +293,7 @@ def group_anagrams(strs):
         for c in w:
             letters[ord(c) - ord('a')] += 1
         groups.setdefault(tuple(letters), []).append(w)
-    return groups.values()
+    return list(groups.values())
 
 
 # ============================================================================
@@ -295,23 +304,22 @@ def num_islands(grid):
     if not grid:
         return 0
     
-    count = 0
-    rows, cols = len(grid), len(grid[0])
+    count, rows, cols = 0, len(grid), len(grid[0])
 
-    def dfs(r, c):
-        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != 1:
+    def sink(r, c):
+        if r < 0 or c < 0 or c >= cols or r >= rows or grid[r][c] != 1:
             return
         grid[r][c] = 0
-        dfs(r+1, c)
-        dfs(r-1, c)
-        dfs(r, c+1)
-        dfs(r, c-1)
+        sink(r+1, c)
+        sink(r-1, c)
+        sink(r, c+1)
+        sink(r, c-1)
 
     for r in range(rows):
         for c in range(cols):
             if grid[r][c] == 1:
                 count += 1
-                dfs(r, c)
+                sink(r, c)
     return count
 
 
@@ -320,17 +328,17 @@ def num_islands(grid):
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
-    res = []
     nums.sort()
+    res = []
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
-            continue
+            i += 1
         left, right = i + 1, len(nums) - 1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
                 right -= 1
-            elif threeSum < 0 :
+            elif threeSum < 0:
                 left += 1
             else:
                 res.append([n, nums[left], nums[right]])
@@ -339,7 +347,7 @@ def three_sum(nums):
                 while left < right and nums[left-1] == nums[left]:
                     left += 1
                 while right > left and nums[right] == nums[right+1]:
-                    right -= 1
+                    right += 1
     return res
 
 
@@ -363,8 +371,8 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    res = []
     intervals.sort()
+    res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
             res[-1][1] = max(res[-1][1], end)
