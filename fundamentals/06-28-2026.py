@@ -1,5 +1,5 @@
 """
-06-27-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-28-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -32,7 +32,7 @@ def reverse_list(head):
 # 2. Find the middle node (second middle on even length). Fast/slow pointers.
 # ============================================================================
 def find_middle(head):
-    slow, fast = head, head
+    slow = fast = head
     while fast and fast.next:
         slow = slow.next
         fast = fast.next.next
@@ -77,7 +77,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-    
+
     odd = head
     even = head.next
     even_head = even
@@ -122,7 +122,7 @@ def dfs_recursive(graph, start):
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
-    
+
     dfs(start)
     return order
 
@@ -133,8 +133,7 @@ def dfs_recursive(graph, start):
 # ============================================================================
 def dfs_iterative(graph, start):
     visited = set()
-    order = []
-    s = [start]
+    s, order = [start], []
 
     while s:
         node = s.pop()
@@ -151,13 +150,7 @@ def dfs_iterative(graph, start):
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    h = []
-    for num in nums:
-        heapq.heappush(h, num)
-        if len(h) > k:
-            heapq.heappop(h)
-    h.sort(reverse=True)
-    return h
+    return sorted(heapq.nlargest(k, nums), reverse=True)
 
 
 # ============================================================================
@@ -208,10 +201,7 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
-    left = 0
-    best = 0
-    
+    seen, left, best = set(), 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -238,9 +228,10 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-
-    res = []
+    
     q = deque([root])
+    res = []
+
     while q:
         level = []
         for _ in range(len(q)):
@@ -265,7 +256,7 @@ def is_valid_bst(root):
         if not (lo < node.val < hi):
             return False
         return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
-
+        
     return ok(root, float('-inf'), float('inf'))
 
 
@@ -306,20 +297,20 @@ def num_islands(grid):
     
     count, rows, cols = 0, len(grid), len(grid[0])
 
-    def sink(r, c):
-        if r < 0 or c < 0 or c >= cols or r >= rows or grid[r][c] != 1:
+    def dfs(r, c):
+        if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
-        sink(r+1, c)
-        sink(r-1, c)
-        sink(r, c+1)
-        sink(r, c-1)
+        dfs(r+1, c)
+        dfs(r-1, c)
+        dfs(r, c+1)
+        dfs(r, c-1)
 
     for r in range(rows):
         for c in range(cols):
             if grid[r][c] == 1:
                 count += 1
-                sink(r, c)
+                dfs(r, c)
     return count
 
 
@@ -332,7 +323,7 @@ def three_sum(nums):
     res = []
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
-            i += 1
+            continue
         left, right = i + 1, len(nums) - 1
         while left < right:
             threeSum = n + nums[left] + nums[right]
@@ -347,7 +338,7 @@ def three_sum(nums):
                 while left < right and nums[left-1] == nums[left]:
                     left += 1
                 while right > left and nums[right] == nums[right+1]:
-                    right += 1
+                    right -= 1
     return res
 
 
@@ -401,7 +392,7 @@ def delete_bst_node(root, key):
         while succ.left:
             succ = succ.left
         root.val = succ.val
-        root.right = delete_bst_node(root.right, succ.val)
+        root.right = delete_bst_node(root.right, root.val)
     return root
 
 
