@@ -1,5 +1,5 @@
 """
-06-28-2026 — DSA drills.  Fill in each function from memory, then click Run.
+06-29-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -59,7 +59,6 @@ def has_cycle(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-    
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -77,7 +76,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-
+    
     odd = head
     even = head.next
     even_head = even
@@ -116,9 +115,9 @@ def dfs_recursive(graph, start):
     visited = set()
     order = []
 
-    def dfs(node: ListNode) -> None:
-        visited.add(node)
+    def dfs(node):
         order.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
@@ -132,15 +131,13 @@ def dfs_recursive(graph, start):
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
-    visited = set()
-    s, order = [start], []
-
+    visited, s, order = set(), [start], []
     while s:
         node = s.pop()
         if node in visited:
             continue
-        order.append(node)
         visited.add(node)
+        order.append(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return order
@@ -150,7 +147,12 @@ def dfs_iterative(graph, start):
 # 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse=True)
+    h = []
+    for num in nums:
+        heapq.heappush(h, num)
+        if len(h) > k:
+            heapq.heappop(h)
+    return sorted(h, reverse=True)
 
 
 # ============================================================================
@@ -167,6 +169,7 @@ def binary_search(nums, target):
         else:
             lo = mid + 1
     return -1
+
 
 
 # ============================================================================
@@ -201,7 +204,8 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen, left, best = set(), 0, 0
+    seen = set()
+    left, best = 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -231,7 +235,6 @@ def level_order(root):
     
     q = deque([root])
     res = []
-
     while q:
         level = []
         for _ in range(len(q)):
@@ -242,7 +245,8 @@ def level_order(root):
             if node.right:
                 q.append(node.right)
         res.append(level)
-    return res
+    return res 
+
 
 
 # ============================================================================
@@ -250,14 +254,14 @@ def level_order(root):
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    def ok(node, lo, hi):
+    def valid(node, lo, hi):
         if not node:
             return True
         if not (lo < node.val < hi):
             return False
-        return ok(node.left, lo, node.val) and ok(node.right, node.val, hi)
-        
-    return ok(root, float('-inf'), float('inf'))
+        return valid(node.left, lo, node.val) and valid(node.right, node.val, hi)
+
+    return valid(root, float('-inf'), float('inf'))
 
 
 # ============================================================================
@@ -267,10 +271,9 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-
-    while root and root.val != val:
-        root = root.left if root.val > val else root.right
-    return root
+    if root.val == val:
+        return root
+    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
 
 
 # ============================================================================
@@ -287,6 +290,7 @@ def group_anagrams(strs):
     return list(groups.values())
 
 
+
 # ============================================================================
 # 19. [grid / flood fill] Count islands in a 2D grid of 0s and 1s, connected
 #     4-directionally (up/down/left/right).
@@ -296,8 +300,8 @@ def num_islands(grid):
         return 0
     
     count, rows, cols = 0, len(grid), len(grid[0])
-
-    def dfs(r, c):
+    
+    def dfs(r, c) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
