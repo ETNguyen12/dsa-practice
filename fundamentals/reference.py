@@ -36,29 +36,6 @@ def reverse_list(head):
     return prev              # prev is the new head
 
 
-# Find the middle (second middle on even length).
-# Forget-point: the loop condition `fast and fast.next` is what makes
-# slow land on the second-middle / not crash.
-def find_middle(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-    return slow
-
-
-# Detect a cycle.
-# Forget-point: same fast/slow skeleton; they collide iff there's a loop.
-def has_cycle(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-        if slow is fast:
-            return True
-    return False
-
-
 # Delete the middle node (⌊n/2⌋-th, 0-indexed).
 # Forget-point: keep a `prev` one step behind slow so you can splice it out;
 # the fast/fast.next loop lands slow exactly on the middle. Single node -> None.
@@ -553,3 +530,30 @@ def diameter_of_binary_tree(root):
 
     depth(root)
     return best
+
+# ████████████████████████████████████████████████████████████████████████████
+# DEPRECATED ANSWERS — questions I am already super comfortable with
+# ████████████████████████████████████████████████████████████████████████████
+
+
+# Find the middle (second middle on even length).
+# Forget-point: the loop condition `fast and fast.next` is what makes
+# slow land on the second-middle / not crash.
+def find_middle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    return slow
+
+
+# Detect a cycle.
+# Forget-point: same fast/slow skeleton; they collide iff there's a loop.
+def has_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow is fast:
+            return True
+    return False

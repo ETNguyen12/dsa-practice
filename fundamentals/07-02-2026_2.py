@@ -67,14 +67,34 @@ def odd_even_list(head):
 
 
 # ============================================================================
-# 4. BFS over an adjacency-list graph. Return nodes in first-visit order from
+# 4. Iterative DFS with an explicit stack. Same contract; order can differ from
+#     the recursive version (see the test).
+# ============================================================================
+def dfs_iterative(graph, start):
+    s = [start]
+    res = []
+    visited = set()
+
+    while s:
+        node = s.pop()
+        if node in visited:
+            continue
+        visited.add(node)
+        res.append(node)
+        for neighbor in graph[node]:
+            s.append(neighbor)
+    return res
+
+
+# ============================================================================
+# 5. BFS over an adjacency-list graph. Return nodes in first-visit order from
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
     visited = {start}
-    q = deque([start])
     res = []
-
+    q = deque([start])
+    
     while q:
         node = q.popleft()
         res.append(node)
@@ -86,39 +106,20 @@ def bfs(graph, start):
 
 
 # ============================================================================
-# 5. Recursive DFS. Same return contract as bfs (visit order from `start`).
+# 6. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
     visited = set()
     res = []
-    
+
     def dfs(node: ListNode) -> None:
-        visited.add(node)
         res.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
 
     dfs(start)
-    return res
-
-
-# ============================================================================
-# 6. Iterative DFS with an explicit stack. Same contract; order can differ from
-#     the recursive version (see the test).
-# ============================================================================
-def dfs_iterative(graph, start):
-    visited = set()
-    s, res = [start], []
-
-    while s:
-        node = s.pop()
-        if node in visited:
-            continue
-        res.append(node)
-        visited.add(node)
-        for neighbor in graph[node]:
-            s.append(neighbor)
     return res
 
 
@@ -131,7 +132,8 @@ def top_k(nums, k):
         heapq.heappush(h, num)
         if len(h) > k:
             heapq.heappop(h)
-    return sorted(h, reverse=True)
+    h.sort(reverse=True)
+    return h
 
 
 # ============================================================================
@@ -158,10 +160,10 @@ def lower_bound(nums, target):
     lo, hi = 0, len(nums)
     while lo < hi:
         mid = lo + (hi - lo) // 2
-        if nums[mid] >= target:
-            hi = mid
-        else:
+        if nums[mid] < target:
             lo = mid + 1
+        else:
+            hi = mid
     return lo
 
 
@@ -183,7 +185,9 @@ def max_window_sum(nums, k):
 # ============================================================================
 def longest_unique_substring(s):
     seen = set()
-    left, best = 0, 0
+    left = 0
+    best = 0
+
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -263,9 +267,11 @@ def group_anagrams(strs):
         letters = [0] * 26
         for c in s:
             letters[ord(c) - ord('a')] += 1
-        groups.setdefault(tuple(letters), []).append(s)
+        if tuple(letters) in groups:
+            groups[tuple(letters)].append(s)
+        else:
+            groups[tuple(letters)] = [s]
     return list(groups.values())
-
 
 # ============================================================================
 # 17. [grid / flood fill] Count islands in a 2D grid of 0s and 1s, connected
@@ -273,10 +279,10 @@ def group_anagrams(strs):
 # ============================================================================
 def num_islands(grid):
     if not grid:
-        return 0
+        return 0 
     
     count, rows, cols = 0, len(grid), len(grid[0])
-    
+
     def dfs(r, c) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
@@ -304,12 +310,12 @@ def three_sum(nums):
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
             continue
-        left, right = i + 1, len(nums)-1
+        left, right = i + 1, len(nums) - 1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
                 right -= 1
-            elif threeSum < 0:
+            elif threeSum < 0 :
                 left += 1
             else:
                 res.append([n, nums[left], nums[right]])
@@ -320,7 +326,7 @@ def three_sum(nums):
                 while right > left and nums[right] == nums[right+1]:
                     right -= 1
     return res
-
+ 
 
 # ============================================================================
 # 19. [monotonic stack] For each day, how many days until a WARMER temperature
@@ -346,7 +352,7 @@ def merge_intervals(intervals):
     res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
-            res[-1][1] = max(res[-1][1], end)
+            res[-1][1] = max(end, res[-1][1])
         else:
             res.append([start, end])
     return res
@@ -376,49 +382,27 @@ def delete_bst_node(root, key):
     return root
 
 
-# ████████████████████████████████████████████████████████████████████████████
-# BONUS — extra reps; these do NOT count toward your SCORE and never gate the
-# timer or file cleanup. Solve them if you want, skip freely, or delete any.
-# ████████████████████████████████████████████████████████████████████████████
-
-
 # ============================================================================
-# B1. [backtracking] Power set of distinct `nums` — every subset. Order free.
+# 22. [backtracking] Power set of distinct `nums` — every subset. Order free.
 # ============================================================================
 def subsets(nums):
     res = [[]]
     for n in nums:
-        res += [cur + [n] for cur in res]
+        res += [curr + [n] for curr in res]
     return res
 
 
 # ============================================================================
-# B2. [dynamic programming] Fewest coins (unlimited each) summing to `amount`, or -1
-#     if impossible. coin_change([1,2,5],11) -> 3.
-# ============================================================================
-def coin_change(coins, amount):
-    pass
-
-
-# ============================================================================
-# B3. [topological sort] True if all courses can finish (no cycle). prerequisites[i]
-#     = [a, b] means b before a. course_schedule(2,[[1,0]]) -> True.
-# ============================================================================
-def course_schedule(num_courses, prerequisites):
-    pass
-
-
-# ============================================================================
-# B4. [binary search on the answer] Smallest integer speed to eat all `piles` within
+# 23. [binary search on the answer] Smallest integer speed to eat all `piles` within
 #     `h` hours (ceil(pile/speed) hours each). ([3,6,7,11], 8) -> 4.
 # ============================================================================
 def min_eating_speed(piles, h):
     lo, hi = 0, max(piles)
 
-    from math import ceil
+    import math
     while lo < hi:
         mid = lo + (hi - lo) // 2
-        hours = sum([ceil(p/mid) for p in piles])
+        hours = sum([math.ceil(p / mid)for p in piles])
         if hours <= h:
             hi = mid
         else:
@@ -427,7 +411,43 @@ def min_eating_speed(piles, h):
 
 
 # ============================================================================
-# B5. [2D dynamic programming] Unique paths top-left to bottom-right of an m x n grid
+# 24. [prefix sum + hash map] Count subarrays of `nums` whose sum equals k. Seed
+#     {0: 1}. subarray_sum([1,1,1], 2) -> 2.
+# ============================================================================
+def subarray_sum(nums, k):
+    seen = {0: 1}
+    count, total = 0, 0
+    for n in nums:
+        total += n
+        count += seen.get(total-k, 0)
+        seen[total] = seen.get(total, 0) + 1
+    return count
+
+
+# ████████████████████████████████████████████████████████████████████████████
+# BONUS — extra reps; these do NOT count toward your SCORE and never gate the
+# timer or file cleanup. Solve them if you want, skip freely, or delete any.
+# ████████████████████████████████████████████████████████████████████████████
+
+
+# ============================================================================
+# B1. [dynamic programming] Fewest coins (unlimited each) summing to `amount`, or -1
+#     if impossible. coin_change([1,2,5],11) -> 3.
+# ============================================================================
+def coin_change(coins, amount):
+    pass
+
+
+# ============================================================================
+# B2. [topological sort] True if all courses can finish (no cycle). prerequisites[i]
+#     = [a, b] means b before a. course_schedule(2,[[1,0]]) -> True.
+# ============================================================================
+def course_schedule(num_courses, prerequisites):
+    pass
+
+
+# ============================================================================
+# B3. [2D dynamic programming] Unique paths top-left to bottom-right of an m x n grid
 #     moving only right/down. unique_paths(3,7) -> 28.
 # ============================================================================
 def unique_paths(m, n):
@@ -435,15 +455,7 @@ def unique_paths(m, n):
 
 
 # ============================================================================
-# B6. [prefix sum + hash map] Count subarrays of `nums` whose sum equals k. Seed
-#     {0: 1}. subarray_sum([1,1,1], 2) -> 2.
-# ============================================================================
-def subarray_sum(nums, k):
-    pass
-
-
-# ============================================================================
-# B7. [tree post-order aggregation] Diameter = number of EDGES on the longest path
+# B4. [tree post-order aggregation] Diameter = number of EDGES on the longest path
 #     between any two nodes (may not pass through root). ([1,2,3,4,5]) -> 3.
 # ============================================================================
 def diameter_of_binary_tree(root):

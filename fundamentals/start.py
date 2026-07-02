@@ -33,7 +33,7 @@ CORE = [
     # linked list
     "reverse_list", "delete_middle_node", "odd_even_list",
     # graph
-    "bfs", "dfs_recursive", "dfs_iterative",
+    "dfs_iterative", "bfs", "dfs_recursive",
     # heap
     "top_k",
     # binary search
@@ -52,15 +52,19 @@ CORE = [
     "merge_intervals", 
     # BST
     "delete_bst_node",
+    # backtracking 
+    "subsets",
+    # binary search on the answer
+    "min_eating_speed",
+    # prefix sum + hash map
+    "subarray_sum",
+
 ]
 
 BONUS = [
-    "subsets",                  # backtracking 
     "coin_change",              # dp
     "course_schedule",          # topological sort
-    "min_eating_speed",         # binary search on the answer
     "unique_paths",             # 2D dynamic programming
-    "subarray_sum",             # prefix sum + hash map
     "diameter_of_binary_tree",  # tree post-order aggregation
 ]
 
