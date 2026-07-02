@@ -1,5 +1,5 @@
 """
-07-01-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-02-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -29,37 +29,13 @@ def reverse_list(head):
 
 
 # ============================================================================
-# 2. Find the middle node (second middle on even length). Fast/slow pointers.
-# ============================================================================
-def find_middle(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-    return slow
-
-
-# ============================================================================
-# 3. Detect a cycle in a linked list. Return True/False. Fast/slow pointers.
-# ============================================================================
-def has_cycle(head):
-    slow = fast = head
-    while fast and fast.next:
-        slow = slow.next
-        fast = fast.next.next
-        if slow is fast:
-            return True
-    return False
-
-
-# ============================================================================
-# 4. [linked list] Delete the MIDDLE node (the floor(n/2)-th, 0-indexed) and
+# 2. [linked list] Delete the MIDDLE node (the floor(n/2)-th, 0-indexed) and
 #     return the head. [1,2,3,4] -> [1,2,4]. [1] -> [] (None). Keep a prev pointer.
 # ============================================================================
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-
+    
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -71,13 +47,13 @@ def delete_middle_node(head):
 
 
 # ============================================================================
-# 5. [linked list] Regroup so all ODD positions (1st,3rd,...) come first, then the
+# 3. [linked list] Regroup so all ODD positions (1st,3rd,...) come first, then the
 #     EVEN positions, preserving order. [1,2,3,4,5] -> [1,3,5,2,4]. By POSITION.
 # ============================================================================
 def odd_even_list(head):
-    if not head or not head:
+    if not head or not head.next:
         return head
-
+    
     odd = head
     even = head.next
     even_head = even
@@ -91,64 +67,63 @@ def odd_even_list(head):
 
 
 # ============================================================================
-# 6. BFS over an adjacency-list graph. Return nodes in first-visit order from
+# 4. BFS over an adjacency-list graph. Return nodes in first-visit order from
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
-    q = deque([start])
     visited = {start}
-    order = []
+    q = deque([start])
+    res = []
 
     while q:
         node = q.popleft()
-        order.append(node)
+        res.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 visited.add(neighbor)
                 q.append(neighbor)
-    return order
+    return res
 
 
 # ============================================================================
-# 7. Recursive DFS. Same return contract as bfs (visit order from `start`).
+# 5. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    order = []
     visited = set()
-
+    res = []
+    
     def dfs(node: ListNode) -> None:
-        order.append(node)
         visited.add(node)
+        res.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
 
     dfs(start)
-    return order
+    return res
 
 
 # ============================================================================
-# 8. Iterative DFS with an explicit stack. Same contract; order can differ from
+# 6. Iterative DFS with an explicit stack. Same contract; order can differ from
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
     visited = set()
-    s = [start]
-    order = []
+    s, res = [start], []
 
     while s:
         node = s.pop()
         if node in visited:
             continue
-        order.append(node)
+        res.append(node)
         visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
-    return order
+    return res
 
 
 # ============================================================================
-# 9. Return the k largest numbers from `nums`, sorted descending. Use a heap.
+# 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
     h = []
@@ -160,10 +135,10 @@ def top_k(nums, k):
 
 
 # ============================================================================
-# 10. Binary search. `nums` sorted ascending. Return index of `target`, else -1.
+# 8. Binary search. `nums` sorted ascending. Return index of `target`, else -1.
 # ============================================================================
 def binary_search(nums, target):
-    lo, hi = 0, len(nums) - 1
+    lo, hi = 0, len(nums)-1
     while lo <= hi:
         mid = lo + (hi - lo) // 2
         if nums[mid] == target:
@@ -175,9 +150,8 @@ def binary_search(nums, target):
     return -1
 
 
-
 # ============================================================================
-# 11. Leftmost insertion point: index of the first element >= target.
+# 9. Leftmost insertion point: index of the first element >= target.
 #     [1,3,3,5], 3 -> 1.  4 -> 3.  6 -> 4.  0 -> 0.
 # ============================================================================
 def lower_bound(nums, target):
@@ -192,7 +166,7 @@ def lower_bound(nums, target):
 
 
 # ============================================================================
-# 12. Fixed-size sliding window. Max sum of any window of size k, in one pass.
+# 10. Fixed-size sliding window. Max sum of any window of size k, in one pass.
 # ============================================================================
 def max_window_sum(nums, k):
     window = sum(nums[:k])
@@ -204,13 +178,12 @@ def max_window_sum(nums, k):
 
 
 # ============================================================================
-# 13. Variable sliding window. Length of the LONGEST substring of `s` with no
+# 11. Variable sliding window. Length of the LONGEST substring of `s` with no
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
     seen = set()
-    left = 0
-    best = 0
+    left, best = 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -221,7 +194,7 @@ def longest_unique_substring(s):
 
 
 # ============================================================================
-# 14. [tree / DFS recursion] Max depth of a binary tree. Empty tree -> 0.
+# 12. [tree / DFS recursion] Max depth of a binary tree. Empty tree -> 0.
 # ============================================================================
 def max_depth(root):
     if not root:
@@ -231,13 +204,13 @@ def max_depth(root):
 
 
 # ============================================================================
-# 15. [tree / BFS] Level-order -> list of levels (each left-to-right, top-to-bottom).
+# 13. [tree / BFS] Level-order -> list of levels (each left-to-right, top-to-bottom).
 #     [3,9,20,null,null,15,7] -> [[3],[9,20],[15,7]]. [] -> [].
 # ============================================================================
 def level_order(root):
     if not root:
         return []
-
+    
     q = deque([root])
     res = []
     while q:
@@ -254,7 +227,7 @@ def level_order(root):
 
 
 # ============================================================================
-# 16. [BST / bounded recursion] True if a valid BST (every left subtree < node <
+# 14. [BST / bounded recursion] True if a valid BST (every left subtree < node <
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
@@ -267,21 +240,21 @@ def is_valid_bst(root):
 
     return valid(root, float('-inf'), float('inf'))
 
+
 # ============================================================================
-# 17. [BST search] Return the SUBTREE (node) whose value == val, else None. Use the
+# 15. [BST search] Return the SUBTREE (node) whose value == val, else None. Use the
 #     BST property — go left/right, don't scan the whole tree.
 # ============================================================================
 def search_bst(root, val):
     if not root:
         return None
-
-    while root and root.val != val:
-        root = root.left if root.val > val else root.right
-    return root
+    if root.val == val:
+        return root
+    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
 
 
 # ============================================================================
-# 18. [hash map grouping] Group anagrams together (order of/within groups free).
+# 16. [hash map grouping] Group anagrams together (order of/within groups free).
 #     Key each word by its sorted letters.
 # ============================================================================
 def group_anagrams(strs):
@@ -295,7 +268,7 @@ def group_anagrams(strs):
 
 
 # ============================================================================
-# 19. [grid / flood fill] Count islands in a 2D grid of 0s and 1s, connected
+# 17. [grid / flood fill] Count islands in a 2D grid of 0s and 1s, connected
 #     4-directionally (up/down/left/right).
 # ============================================================================
 def num_islands(grid):
@@ -303,8 +276,8 @@ def num_islands(grid):
         return 0
     
     count, rows, cols = 0, len(grid), len(grid[0])
-
-    def dfs(r, c):
+    
+    def dfs(r, c) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
@@ -319,12 +292,10 @@ def num_islands(grid):
                 count += 1
                 dfs(r, c)
     return count
-    
-
 
 
 # ============================================================================
-# 20. [sort + two pointers] All UNIQUE triplets [a,b,c] with a+b+c == 0. No
+# 18. [sort + two pointers] All UNIQUE triplets [a,b,c] with a+b+c == 0. No
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
@@ -333,7 +304,7 @@ def three_sum(nums):
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
             continue
-        left, right = i + 1, len(nums) - 1
+        left, right = i + 1, len(nums)-1
         while left < right:
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
@@ -351,9 +322,8 @@ def three_sum(nums):
     return res
 
 
-
 # ============================================================================
-# 21. [monotonic stack] For each day, how many days until a WARMER temperature
+# 19. [monotonic stack] For each day, how many days until a WARMER temperature
 #     (0 if none). [73,74,75,71,69,72,76,73] -> [1,1,4,2,1,1,0,0].
 # ============================================================================
 def daily_temperatures(temperatures):
@@ -368,12 +338,12 @@ def daily_temperatures(temperatures):
 
 
 # ============================================================================
-# 22. [sort + sweep / intervals] Merge overlapping [start,end] intervals (unsorted
+# 20. [sort + sweep / intervals] Merge overlapping [start,end] intervals (unsorted
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
+    intervals.sort(key=lambda x: x[0])
     res = []
-    intervals.sort(key=lambda x : x[0])
     for start, end in intervals:
         if res and start <= res[-1][1]:
             res[-1][1] = max(res[-1][1], end)
@@ -383,13 +353,12 @@ def merge_intervals(intervals):
 
 
 # ============================================================================
-# 23. [BST delete] Delete the node with value `key`; return the (possibly new) root,
+# 21. [BST delete] Delete the node with value `key`; return the (possibly new) root,
 #     keeping the BST valid. Two-child case: replace with the in-order successor.
 # ============================================================================
 def delete_bst_node(root, key):
     if not root:
         return None
-
     if root.val > key:
         root.left = delete_bst_node(root.left, key)
     elif root.val < key:

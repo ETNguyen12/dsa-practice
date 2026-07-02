@@ -31,7 +31,7 @@ import heapq
 # ============================================================================
 CORE = [
     # linked list
-    "reverse_list", "find_middle", "has_cycle", "delete_middle_node", "odd_even_list",
+    "reverse_list", "delete_middle_node", "odd_even_list",
     # graph
     "bfs", "dfs_recursive", "dfs_iterative",
     # heap
@@ -62,6 +62,11 @@ BONUS = [
     "unique_paths",             # 2D dynamic programming
     "subarray_sum",             # prefix sum + hash map
     "diameter_of_binary_tree",  # tree post-order aggregation
+]
+
+DEPRECATED = [
+    "find_middle", 
+    "has_cycle"
 ]
 # ============================================================================
 
