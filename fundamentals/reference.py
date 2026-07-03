@@ -411,12 +411,6 @@ def delete_bst_node(root, key):
     return root
 
 
-# ████████████████████████████████████████████████████████████████████████████
-# BONUS ANSWERS — these mirror the non-scoring bonus stubs. Same rule: read till
-# it clicks, close, retype from memory.
-# ████████████████████████████████████████████████████████████████████████████
-
-
 # Subsets / power set.   [backtracking]
 # Forget-point: the iterative trick — start with [[]] and for each num, add it
 # to a COPY of every subset so far (doubling the count each pass).
@@ -437,6 +431,42 @@ def subsets(nums):
     # return res
 
 
+# Koko / min eating speed.   [binary search on the ANSWER]
+# Forget-point: you're binary-searching the speed, not an array. Search space is
+# 1..max(pile); feasibility (hours <= h) is monotonic, so use the lower_bound
+# template and return lo. hours per pile = ceil(pile/speed).
+def min_eating_speed(piles, h):
+    lo, hi = 1, max(piles)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        hours = sum((p + mid - 1) // mid for p in piles)
+        if hours <= h:
+            hi = mid              # feasible — try slower
+        else:
+            lo = mid + 1
+    return lo
+
+
+# Subarray sum equals k (count).   [prefix sum + hash map]
+# Forget-point: seed {0: 1} so a prefix that itself equals k counts; for each
+# running total, add how many earlier prefixes equal total - k.
+def subarray_sum(nums, k):
+    count = 0
+    total = 0
+    seen = {0: 1}                 # prefix-sum -> how many times seen
+    for x in nums:
+        total += x
+        count += seen.get(total - k, 0)
+        seen[total] = seen.get(total, 0) + 1
+    return count
+
+
+# ████████████████████████████████████████████████████████████████████████████
+# BONUS ANSWERS — these mirror the non-scoring bonus stubs. Same rule: read till
+# it clicks, close, retype from memory.
+# ████████████████████████████████████████████████████████████████████████████
+
+
 # Coin change (fewest coins).   [dynamic programming]
 # Forget-point: dp[0] = 0, every other amount starts at infinity; dp[a] is the
 # min over coins of dp[a-c]+1. Return -1 if dp[amount] is still infinity.
@@ -450,7 +480,7 @@ def coin_change(coins, amount):
     return dp[amount] if dp[amount] != INF else -1
 
 
-# B1. Course schedule (can all courses finish?).   [topological sort / Kahn]
+# Course schedule (can all courses finish?).   [topological sort / Kahn]
 # Forget-point: edge direction — prereq [a, b] means b -> a. Push in-degree-0
 # nodes, peel them, and you finish iff you process ALL nodes (no cycle left).
 def course_schedule(num_courses, prerequisites):
@@ -471,22 +501,6 @@ def course_schedule(num_courses, prerequisites):
     return seen == num_courses    # all reached => acyclic
 
 
-# Koko / min eating speed.   [binary search on the ANSWER]
-# Forget-point: you're binary-searching the speed, not an array. Search space is
-# 1..max(pile); feasibility (hours <= h) is monotonic, so use the lower_bound
-# template and return lo. hours per pile = ceil(pile/speed).
-def min_eating_speed(piles, h):
-    lo, hi = 1, max(piles)
-    while lo < hi:
-        mid = (lo + hi) // 2
-        hours = sum((p + mid - 1) // mid for p in piles)
-        if hours <= h:
-            hi = mid              # feasible — try slower
-        else:
-            lo = mid + 1
-    return lo
-
-
 # Unique paths in an m x n grid.   [2D dynamic programming]
 # Forget-point: each cell = paths-from-above + paths-from-left; first row/col are
 # all 1. A single rolling row works: dp[j] += dp[j-1].
@@ -496,20 +510,6 @@ def unique_paths(m, n):
         for j in range(1, n):
             dp[j] += dp[j - 1]
     return dp[-1]
-
-
-# Subarray sum equals k (count).   [prefix sum + hash map]
-# Forget-point: seed {0: 1} so a prefix that itself equals k counts; for each
-# running total, add how many earlier prefixes equal total - k.
-def subarray_sum(nums, k):
-    count = 0
-    total = 0
-    seen = {0: 1}                 # prefix-sum -> how many times seen
-    for x in nums:
-        total += x
-        count += seen.get(total - k, 0)
-        seen[total] = seen.get(total, 0) + 1
-    return count
 
 
 # Diameter of a binary tree.   [tree post-order aggregation]
