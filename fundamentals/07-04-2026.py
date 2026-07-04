@@ -1,5 +1,5 @@
 """
-07-02-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-04-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -72,15 +72,14 @@ def odd_even_list(head):
 # ============================================================================
 def dfs_iterative(graph, start):
     s = [start]
-    res = []
     visited = set()
-
+    res = []
     while s:
         node = s.pop()
         if node in visited:
             continue
-        visited.add(node)
         res.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return res
@@ -91,10 +90,9 @@ def dfs_iterative(graph, start):
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
-    visited = {start}
-    res = []
     q = deque([start])
-    
+    res = []
+    visited = {start}
     while q:
         node = q.popleft()
         res.append(node)
@@ -128,8 +126,8 @@ def dfs_recursive(graph, start):
 # ============================================================================
 def top_k(nums, k):
     h = []
-    for num in nums:
-        heapq.heappush(h, num)
+    for n in nums:
+        heapq.heappush(h, n)
         if len(h) > k:
             heapq.heappop(h)
     h.sort(reverse=True)
@@ -185,9 +183,7 @@ def max_window_sum(nums, k):
 # ============================================================================
 def longest_unique_substring(s):
     seen = set()
-    left = 0
-    best = 0
-
+    left, best = 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -215,8 +211,8 @@ def level_order(root):
     if not root:
         return []
     
-    q = deque([root])
     res = []
+    q = deque([root])
     while q:
         level = []
         for _ in range(len(q)):
@@ -235,7 +231,7 @@ def level_order(root):
 #     every right subtree, strictly).
 # ============================================================================
 def is_valid_bst(root):
-    def valid(node, lo, hi) -> bool:
+    def valid(node, lo, hi):
         if not node:
             return True
         if not (lo < node.val < hi):
@@ -267,11 +263,9 @@ def group_anagrams(strs):
         letters = [0] * 26
         for c in s:
             letters[ord(c) - ord('a')] += 1
-        if tuple(letters) in groups:
-            groups[tuple(letters)].append(s)
-        else:
-            groups[tuple(letters)] = [s]
+        groups.setdefault(tuple(letters), []).append(s)
     return list(groups.values())
+
 
 # ============================================================================
 # 17. [grid / flood fill] Count islands in a 2D grid of 0s and 1s, connected
@@ -283,14 +277,14 @@ def num_islands(grid):
     
     count, rows, cols = 0, len(grid), len(grid[0])
 
-    def dfs(r, c) -> None:
+    def dfs(r, c):
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
         dfs(r+1, c)
         dfs(r-1, c)
-        dfs(r, c+1)
         dfs(r, c-1)
+        dfs(r, c+1)
 
     for r in range(rows):
         for c in range(cols):
@@ -315,7 +309,7 @@ def three_sum(nums):
             threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
                 right -= 1
-            elif threeSum < 0 :
+            elif threeSum < 0:
                 left += 1
             else:
                 res.append([n, nums[left], nums[right]])
@@ -326,7 +320,7 @@ def three_sum(nums):
                 while right > left and nums[right] == nums[right+1]:
                     right -= 1
     return res
- 
+
 
 # ============================================================================
 # 19. [monotonic stack] For each day, how many days until a WARMER temperature
@@ -348,11 +342,11 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    intervals.sort(key=lambda x: x[0])
+    intervals.sort()
     res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
-            res[-1][1] = max(end, res[-1][1])
+            res[-1][1] = max(res[-1][1], end)
         else:
             res.append([start, end])
     return res
@@ -387,8 +381,8 @@ def delete_bst_node(root, key):
 # ============================================================================
 def subsets(nums):
     res = [[]]
-    for n in nums:
-        res += [curr + [n] for curr in res]
+    for num in nums:
+        res += [curr + [num] for curr in res]
     return res
 
 
@@ -399,27 +393,28 @@ def subsets(nums):
 def min_eating_speed(piles, h):
     lo, hi = 0, max(piles)
 
-    import math
+    from math import ceil
     while lo < hi:
         mid = lo + (hi - lo) // 2
-        hours = sum([math.ceil(p / mid)for p in piles])
+        hours = sum([ceil(p / mid) for p in piles])
         if hours <= h:
             hi = mid
         else:
             lo = mid + 1
     return lo
-
+ 
 
 # ============================================================================
 # 24. [prefix sum + hash map] Count subarrays of `nums` whose sum equals k. Seed
 #     {0: 1}. subarray_sum([1,1,1], 2) -> 2.
 # ============================================================================
 def subarray_sum(nums, k):
+    count = 0
+    total = 0
     seen = {0: 1}
-    count, total = 0, 0
     for n in nums:
         total += n
-        count += seen.get(total-k, 0)
+        count += seen.get(total - k, 0)
         seen[total] = seen.get(total, 0) + 1
     return count
 
