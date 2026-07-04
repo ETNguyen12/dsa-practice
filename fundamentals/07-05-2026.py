@@ -1,5 +1,5 @@
 """
-07-04-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-05-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -53,7 +53,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-    
+
     odd = head
     even = head.next
     even_head = even
@@ -71,9 +71,10 @@ def odd_even_list(head):
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
-    s = [start]
+
     visited = set()
-    res = []
+    s, res = [start], []
+
     while s:
         node = s.pop()
         if node in visited:
@@ -91,15 +92,16 @@ def dfs_iterative(graph, start):
 # ============================================================================
 def bfs(graph, start):
     q = deque([start])
-    res = []
     visited = {start}
+    res = []
+
     while q:
         node = q.popleft()
         res.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
-                visited.add(neighbor)
                 q.append(neighbor)
+                visited.add(neighbor)
     return res
 
 
@@ -107,8 +109,7 @@ def bfs(graph, start):
 # 6. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    visited = set()
-    res = []
+    visited, res = set(), []
 
     def dfs(node: ListNode) -> None:
         res.append(node)
@@ -125,13 +126,7 @@ def dfs_recursive(graph, start):
 # 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    h = []
-    for n in nums:
-        heapq.heappush(h, n)
-        if len(h) > k:
-            heapq.heappop(h)
-    h.sort(reverse=True)
-    return h
+    return sorted(heapq.nlargest(k, nums), reverse=True)
 
 
 # ============================================================================
@@ -176,7 +171,6 @@ def max_window_sum(nums, k):
         best = max(best, window)
     return best
 
-
 # ============================================================================
 # 11. Variable sliding window. Length of the LONGEST substring of `s` with no
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
@@ -210,7 +204,7 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-    
+
     res = []
     q = deque([root])
     while q:
@@ -250,6 +244,7 @@ def search_bst(root, val):
         return None
     if root.val == val:
         return root
+    
     return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
 
 
@@ -277,14 +272,14 @@ def num_islands(grid):
     
     count, rows, cols = 0, len(grid), len(grid[0])
 
-    def dfs(r, c):
+    def dfs(r, c) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
         dfs(r+1, c)
         dfs(r-1, c)
-        dfs(r, c-1)
         dfs(r, c+1)
+        dfs(r, c-1)
 
     for r in range(rows):
         for c in range(cols):
@@ -342,8 +337,8 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    intervals.sort()
     res = []
+    intervals.sort(key = lambda x: x[0])
     for start, end in intervals:
         if res and start <= res[-1][1]:
             res[-1][1] = max(res[-1][1], end)
@@ -381,8 +376,8 @@ def delete_bst_node(root, key):
 # ============================================================================
 def subsets(nums):
     res = [[]]
-    for num in nums:
-        res += [curr + [num] for curr in res]
+    for n in nums:
+        res += [[n] + curr for curr in res]
     return res
 
 
@@ -402,21 +397,23 @@ def min_eating_speed(piles, h):
         else:
             lo = mid + 1
     return lo
- 
+    
+
 
 # ============================================================================
 # 24. [prefix sum + hash map] Count subarrays of `nums` whose sum equals k. Seed
 #     {0: 1}. subarray_sum([1,1,1], 2) -> 2.
 # ============================================================================
 def subarray_sum(nums, k):
-    count = 0
     total = 0
-    seen = {0: 1}
+    count = 0
+    prefix = {0: 1}
     for n in nums:
         total += n
-        count += seen.get(total - k, 0)
-        seen[total] = seen.get(total, 0) + 1
+        count += prefix.get(total-k, 0)
+        prefix[total] = prefix.get(total, 0) + 1
     return count
+
 
 
 # ████████████████████████████████████████████████████████████████████████████
