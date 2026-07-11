@@ -1,5 +1,5 @@
 """
-07-05-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-10-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -35,7 +35,7 @@ def reverse_list(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-    
+
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -53,10 +53,11 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-
+    
     odd = head
     even = head.next
     even_head = even
+
     while even and even.next:
         odd.next = even.next
         odd = odd.next
@@ -71,7 +72,6 @@ def odd_even_list(head):
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
-
     visited = set()
     s, res = [start], []
 
@@ -79,8 +79,8 @@ def dfs_iterative(graph, start):
         node = s.pop()
         if node in visited:
             continue
-        res.append(node)
         visited.add(node)
+        res.append(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return res
@@ -91,17 +91,16 @@ def dfs_iterative(graph, start):
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
-    q = deque([start])
     visited = {start}
-    res = []
+    q, res = deque([start]), []
 
     while q:
         node = q.popleft()
         res.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
-                q.append(neighbor)
                 visited.add(neighbor)
+                q.append(neighbor)
     return res
 
 
@@ -109,11 +108,12 @@ def bfs(graph, start):
 # 6. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    visited, res = set(), []
+    visited = set()
+    res = []
 
     def dfs(node: ListNode) -> None:
-        res.append(node)
         visited.add(node)
+        res.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
@@ -126,7 +126,12 @@ def dfs_recursive(graph, start):
 # 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse=True)
+    h = []
+    for num in nums:
+        heapq.heappush(h, num)
+        if len(h) > k:
+            heapq.heappop(h)
+    return sorted(h, reverse=True)
 
 
 # ============================================================================
@@ -143,7 +148,6 @@ def binary_search(nums, target):
         else:
             lo = mid + 1
     return -1
-
 
 # ============================================================================
 # 9. Leftmost insertion point: index of the first element >= target.
@@ -171,13 +175,14 @@ def max_window_sum(nums, k):
         best = max(best, window)
     return best
 
+
 # ============================================================================
 # 11. Variable sliding window. Length of the LONGEST substring of `s` with no
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
     left, best = 0, 0
+    seen = set()
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -204,7 +209,7 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-
+    
     res = []
     q = deque([root])
     while q:
@@ -268,11 +273,11 @@ def group_anagrams(strs):
 # ============================================================================
 def num_islands(grid):
     if not grid:
-        return 0 
+        return 0
     
     count, rows, cols = 0, len(grid), len(grid[0])
 
-    def dfs(r, c) -> None:
+    def dfs(r, c):
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
@@ -337,8 +342,8 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    res = []
     intervals.sort(key = lambda x: x[0])
+    res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
             res[-1][1] = max(res[-1][1], end)
@@ -359,10 +364,10 @@ def delete_bst_node(root, key):
     elif root.val < key:
         root.right = delete_bst_node(root.right, key)
     else:
-        if not root.left:
-            return root.right
         if not root.right:
             return root.left
+        if not root.left:
+            return root.right
         succ = root.right
         while succ.left:
             succ = succ.left
@@ -391,13 +396,12 @@ def min_eating_speed(piles, h):
     from math import ceil
     while lo < hi:
         mid = lo + (hi - lo) // 2
-        hours = sum([ceil(p / mid) for p in piles])
+        hours = sum(ceil(p / mid) for p in piles)
         if hours <= h:
             hi = mid
         else:
             lo = mid + 1
     return lo
-    
 
 
 # ============================================================================
@@ -413,7 +417,6 @@ def subarray_sum(nums, k):
         count += prefix.get(total-k, 0)
         prefix[total] = prefix.get(total, 0) + 1
     return count
-
 
 
 # ████████████████████████████████████████████████████████████████████████████
