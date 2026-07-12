@@ -24,6 +24,7 @@ Daily workflow:
 import time, os
 from collections import deque
 import heapq
+import math
 
 
 # ============================================================================
@@ -522,6 +523,7 @@ The test runner + timer live in start.py; you only edit the functions below.
 import os, sys
 from collections import deque
 import heapq
+import math
 
 # start.py sits in this same folder; make it importable, then pull the runner
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

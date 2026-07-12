@@ -1,5 +1,5 @@
 """
-07-11-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-12-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -9,6 +9,7 @@ The test runner + timer live in start.py; you only edit the functions below.
 import os, sys
 from collections import deque
 import heapq
+import math
 
 # start.py sits in this same folder; make it importable, then pull the runner
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -71,9 +72,9 @@ def odd_even_list(head):
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
-    visited = set()
     s = [start]
     res = []
+    visited = set()
 
     while s:
         node = s.pop()
@@ -91,17 +92,17 @@ def dfs_iterative(graph, start):
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
-    visited = {start}
     q = deque([start])
     res = []
+    visited = {start}
 
     while q:
         node = q.popleft()
         res.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
-                visited.add(neighbor)
                 q.append(neighbor)
+                visited.add(neighbor)
     return res
 
 
@@ -127,7 +128,13 @@ def dfs_recursive(graph, start):
 # 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse=True)
+    h = []
+    for n in nums:
+        heapq.heappush(h, n)
+        if len(h) > k:
+            heapq.heappop(h)
+    h.sort(reverse=True)
+    return h
 
 
 # ============================================================================
@@ -178,7 +185,8 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen, left, best = set(), 0, 0
+    seen = set()
+    best, left = 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -206,8 +214,8 @@ def level_order(root):
     if not root:
         return []
     
-    res = []
     q = deque([root])
+    res = []
     while q:
         level = []
         for _ in range(len(q)):
@@ -243,10 +251,9 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-
-    while root and root.val != val:
-        root = root.left if root.val > val else root.right
-    return root
+    if root.val == val:
+        return root
+    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
 
 
 # ============================================================================
@@ -258,7 +265,7 @@ def group_anagrams(strs):
     for s in strs:
         letters = [0] * 26
         for c in s:
-            letters[ord(c)-ord('a')] += 1
+            letters[ord(c) - ord('a')] += 1
         groups.setdefault(tuple(letters), []).append(s)
     return list(groups.values())
 
@@ -360,10 +367,10 @@ def delete_bst_node(root, key):
     elif root.val < key:
         root.right = delete_bst_node(root.right, key)
     else:
-        if not root.right:
-            return root.left
         if not root.left:
             return root.right
+        if not root.right:
+            return root.left
         succ = root.right
         while succ.left:
             succ = succ.left
@@ -389,9 +396,8 @@ def subsets(nums):
 def min_eating_speed(piles, h):
     lo, hi = 0, max(piles)
     while lo < hi:
-        mid = lo + (hi - lo) // 2
-        from math import ceil
-        hours = sum([ceil(p / mid) for p in piles])
+        mid = lo + (hi-lo) // 2
+        hours = sum([math.ceil(p / mid) for p in piles])
         if hours <= h:
             hi = mid
         else:
