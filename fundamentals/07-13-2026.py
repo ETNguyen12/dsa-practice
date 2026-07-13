@@ -1,5 +1,5 @@
 """
-07-12-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-13-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -75,13 +75,12 @@ def dfs_iterative(graph, start):
     s = [start]
     res = []
     visited = set()
-
     while s:
         node = s.pop()
         if node in visited:
             continue
-        res.append(node)
         visited.add(node)
+        res.append(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return res
@@ -95,14 +94,13 @@ def bfs(graph, start):
     q = deque([start])
     res = []
     visited = {start}
-
     while q:
         node = q.popleft()
         res.append(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
-                q.append(neighbor)
                 visited.add(neighbor)
+                q.append(neighbor)
     return res
 
 
@@ -128,13 +126,7 @@ def dfs_recursive(graph, start):
 # 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    h = []
-    for n in nums:
-        heapq.heappush(h, n)
-        if len(h) > k:
-            heapq.heappop(h)
-    h.sort(reverse=True)
-    return h
+    return sorted(heapq.nlargest(k, nums), reverse=True)
 
 
 # ============================================================================
@@ -185,8 +177,7 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
-    best, left = 0, 0
+    seen, left, best = set(), 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -251,9 +242,10 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-    if root.val == val:
-        return root
-    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
+    
+    while root and root.val != val:
+        root = root.left if root.val > val else root.right
+    return root
 
 
 # ============================================================================
@@ -264,7 +256,7 @@ def group_anagrams(strs):
     groups = {}
     for s in strs:
         letters = [0] * 26
-        for c in s:
+        for c in s: 
             letters[ord(c) - ord('a')] += 1
         groups.setdefault(tuple(letters), []).append(s)
     return list(groups.values())
@@ -279,8 +271,8 @@ def num_islands(grid):
         return 0
     
     count, rows, cols = 0, len(grid), len(grid[0])
-
-    def dfs(r, c):
+    
+    def dfs(r, c) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
@@ -410,7 +402,8 @@ def min_eating_speed(piles, h):
 #     {0: 1}. subarray_sum([1,1,1], 2) -> 2.
 # ============================================================================
 def subarray_sum(nums, k):
-    total, count = 0, 0
+    total = 0
+    count = 0
     prefix = {0: 1}
     for n in nums:
         total += n
