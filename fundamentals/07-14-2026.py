@@ -1,5 +1,5 @@
 """
-07-13-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-14-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -36,7 +36,6 @@ def reverse_list(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-    
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -54,9 +53,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-    
-    odd = head
-    even = head.next
+    odd, even = head, head.next
     even_head = even
     while even and even.next:
         odd.next = even.next
@@ -72,15 +69,13 @@ def odd_even_list(head):
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
-    s = [start]
-    res = []
-    visited = set()
+    visited, s, res = set(), [start], []
     while s:
         node = s.pop()
         if node in visited:
             continue
-        visited.add(node)
         res.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return res
@@ -91,9 +86,7 @@ def dfs_iterative(graph, start):
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
-    q = deque([start])
-    res = []
-    visited = {start}
+    visited, q, res = {start}, deque([start]), []
     while q:
         node = q.popleft()
         res.append(node)
@@ -108,12 +101,11 @@ def bfs(graph, start):
 # 6. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    visited = set()
-    res = []
+    visited, res = set(), []
 
     def dfs(node: ListNode) -> None:
-        visited.add(node)
         res.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
@@ -126,7 +118,13 @@ def dfs_recursive(graph, start):
 # 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse=True)
+    h = []
+    for n in nums:
+        heapq.heappush(h, n)
+        if len(h) > k:
+            heapq.heappop(h)
+    h.sort(reverse=True)
+    return h
 
 
 # ============================================================================
@@ -204,7 +202,6 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
-    
     q = deque([root])
     res = []
     while q:
@@ -242,10 +239,9 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-    
-    while root and root.val != val:
-        root = root.left if root.val > val else root.right
-    return root
+    if root.val == val:
+        return root
+    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
 
 
 # ============================================================================
@@ -256,7 +252,7 @@ def group_anagrams(strs):
     groups = {}
     for s in strs:
         letters = [0] * 26
-        for c in s: 
+        for c in s:
             letters[ord(c) - ord('a')] += 1
         groups.setdefault(tuple(letters), []).append(s)
     return list(groups.values())
@@ -271,7 +267,7 @@ def num_islands(grid):
         return 0
     
     count, rows, cols = 0, len(grid), len(grid[0])
-    
+
     def dfs(r, c) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
@@ -337,7 +333,7 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    intervals.sort(key=lambda x: x[0])
+    intervals.sort()
     res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
