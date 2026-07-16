@@ -1,5 +1,5 @@
 """
-07-15-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-16-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -70,15 +70,16 @@ def odd_even_list(head):
 #     the recursive version (see the test).
 # ============================================================================
 def dfs_iterative(graph, start):
+    s = [start]
     visited = set()
     res = []
-    s = [start]
+
     while s:
         node = s.pop()
         if node in visited:
             continue
-        res.append(node)
         visited.add(node)
+        res.append(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return res
@@ -89,9 +90,10 @@ def dfs_iterative(graph, start):
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
+    q = deque([start])
     visited = {start}
     res = []
-    q = deque([start])
+
     while q:
         node = q.popleft()
         res.append(node)
@@ -108,15 +110,15 @@ def bfs(graph, start):
 def dfs_recursive(graph, start):
     visited = set()
     res = []
-    s = [start]
-    while s:
-        node = s.pop()
-        if node in visited:
-            continue
-        res.append(node)
+
+    def dfs(node: ListNode) -> None:
         visited.add(node)
-        for neighbor in sorted(graph[node], reverse=True):
-            s.append(neighbor)
+        res.append(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                dfs(neighbor)
+
+    dfs(start)
     return res
 
 
@@ -138,7 +140,7 @@ def top_k(nums, k):
 def binary_search(nums, target):
     lo, hi = 0, len(nums)-1
     while lo <= hi:
-        mid = lo + (hi-lo) // 2
+        mid = lo + (hi - lo) // 2
         if nums[mid] == target:
             return mid
         elif nums[mid] > target:
@@ -155,7 +157,7 @@ def binary_search(nums, target):
 def lower_bound(nums, target):
     lo, hi = 0, len(nums)
     while lo < hi:
-        mid = lo + (hi-lo) // 2
+        mid = lo + (hi - lo) // 2
         if nums[mid] >= target:
             hi = mid
         else:
@@ -180,9 +182,7 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
-    left = 0
-    best = 0
+    seen, left, best = set(), 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -208,6 +208,7 @@ def max_depth(root):
 def level_order(root):
     if not root:
         return []
+    
     res = []
     q = deque([root])
     while q:
@@ -234,6 +235,7 @@ def is_valid_bst(root):
         if not (lo < node.val < hi):
             return False
         return valid(node.left, lo, node.val) and valid(node.right, node.val, hi)
+    
     return valid(root, float('-inf'), float('inf'))
 
 
@@ -244,9 +246,9 @@ def is_valid_bst(root):
 def search_bst(root, val):
     if not root:
         return None
-    while root and root.val != val:
-        root = root.left if root.val > val else root.right
-    return root
+    if root.val == val:
+        return root
+    return search_bst(root.left, val) if root.val > val else search_bst(root.right, val)
 
 
 # ============================================================================
@@ -258,7 +260,7 @@ def group_anagrams(strs):
     for s in strs:
         letters = [0] * 26
         for c in s:
-            letters[ord(c)-ord('a')] += 1
+            letters[ord(c) - ord('a')] += 1
         groups.setdefault(tuple(letters), []).append(s)
     return list(groups.values())
 
@@ -270,6 +272,7 @@ def group_anagrams(strs):
 def num_islands(grid):
     if not grid:
         return 0
+    
     count, rows, cols = 0, len(grid), len(grid[0])
 
     def dfs(r, c):
@@ -282,7 +285,7 @@ def num_islands(grid):
         dfs(r, c-1)
 
     for r in range(rows):
-        for c in range(cols):
+        for c in range(rows):
             if grid[r][c] == 1:
                 count += 1
                 dfs(r, c)
@@ -294,26 +297,26 @@ def num_islands(grid):
 #     duplicate triplets. [-1,0,1,2,-1,-4] -> [[-1,-1,2],[-1,0,1]].
 # ============================================================================
 def three_sum(nums):
-    nums.sort(key=lambda x: x)
+    nums.sort()
     res = []
     for i, n in enumerate(nums):
         if i > 0 and nums[i-1] == nums[i]:
             continue
-        lo, hi = i + 1, len(nums) - 1
-        while lo < hi:
-            threeSum = n + nums[lo] + nums[hi]
+        left, right = i + 1, len(nums) - 1
+        while left < right:
+            threeSum = n + nums[left] + nums[right]
             if threeSum > 0:
-                hi -= 1
+                right -= 1
             elif threeSum < 0:
-                lo += 1
+                left += 1
             else:
-                res.append([n, nums[lo], nums[hi]])
-                lo += 1
-                hi -= 1
-                while lo < hi and nums[lo-1] == nums[lo]:
-                    lo += 1
-                while hi > lo and nums[hi] == nums[hi+1]:
-                    hi -= 1
+                res.append([n, nums[left], nums[right]])
+                left += 1
+                right -= 1
+                while left < right and nums[left-1] == nums[left]:
+                    left += 1
+                while right > left and nums[right] == nums[right+1]:
+                    right -= 1
     return res
 
 
@@ -337,7 +340,7 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    intervals.sort(key=lambda x: x[0])
+    intervals.sort()
     res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
@@ -376,17 +379,18 @@ def delete_bst_node(root, key):
 # ============================================================================
 def subsets(nums):
     res = []
-    def go(i, path):
+    def backtracking(i, path):
         if i == len(nums):
             res.append(path[:])
             return
         path.append(nums[i])
-        go(i+1, path)
+        backtracking(i+1, path)
         path.pop()
-        go(i+1, path)
-    go(0, [])
+        backtracking(i+1, path)
+
+    backtracking(0, [])
     return res
-        
+    
 
 
 # ============================================================================
@@ -396,7 +400,7 @@ def subsets(nums):
 def min_eating_speed(piles, h):
     lo, hi = 1, max(piles)
     while lo < hi:
-        mid = lo + (hi-lo) // 2
+        mid = lo + (hi - lo) // 2
         hours = sum([math.ceil(p / mid) for p in piles])
         if hours <= h:
             hi = mid
@@ -415,7 +419,7 @@ def subarray_sum(nums, k):
     for n in nums:
         total += n
         count += prefix.get(total-k, 0)
-        prefix[total] = prefix.get(total, 0) + 1
+        prefix[total] = prefix.setdefault(total, 0) + 1
     return count
 
 
