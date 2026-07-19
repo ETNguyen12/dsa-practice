@@ -1,5 +1,5 @@
 """
-07-16-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-19-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -9,7 +9,6 @@ The test runner + timer live in start.py; you only edit the functions below.
 import os, sys
 from collections import deque
 import heapq
-import math
 
 # start.py sits in this same folder; make it importable, then pull the runner
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -54,6 +53,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
+    
     odd, even = head, head.next
     even_head = even
     while even and even.next:
@@ -78,8 +78,8 @@ def dfs_iterative(graph, start):
         node = s.pop()
         if node in visited:
             continue
-        visited.add(node)
         res.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
     return res
@@ -126,12 +126,7 @@ def dfs_recursive(graph, start):
 # 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    h = []
-    for n in nums:
-        heapq.heappush(h, n)
-        if len(h) > k:
-            heapq.heappop(h)
-    return sorted(h, reverse=True)
+    return sorted(heapq.nlargest(k, nums), reverse=True)
 
 
 # ============================================================================
@@ -182,7 +177,8 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen, left, best = set(), 0, 0
+    seen = set()
+    left, best = 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -209,8 +205,8 @@ def level_order(root):
     if not root:
         return []
     
-    res = []
     q = deque([root])
+    res = []
     while q:
         level = []
         for _ in range(len(q)):
@@ -235,7 +231,6 @@ def is_valid_bst(root):
         if not (lo < node.val < hi):
             return False
         return valid(node.left, lo, node.val) and valid(node.right, node.val, hi)
-    
     return valid(root, float('-inf'), float('inf'))
 
 
@@ -274,8 +269,8 @@ def num_islands(grid):
         return 0
     
     count, rows, cols = 0, len(grid), len(grid[0])
-
-    def dfs(r, c):
+    
+    def dfs(r, c) -> None:
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
@@ -285,7 +280,7 @@ def num_islands(grid):
         dfs(r, c-1)
 
     for r in range(rows):
-        for c in range(rows):
+        for c in range(cols):
             if grid[r][c] == 1:
                 count += 1
                 dfs(r, c)
@@ -340,7 +335,7 @@ def daily_temperatures(temperatures):
 #     input). Return merged, sorted by start. [[1,3],[2,6],[8,10]] -> [[1,6],[8,10]].
 # ============================================================================
 def merge_intervals(intervals):
-    intervals.sort()
+    intervals.sort(key=lambda x: x[0])
     res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
@@ -378,19 +373,18 @@ def delete_bst_node(root, key):
 # 22. [backtracking] Power set of distinct `nums` — every subset. Order free.
 # ============================================================================
 def subsets(nums):
-    res = []
-    def backtracking(i, path):
+    def backtrack(i, path):
         if i == len(nums):
             res.append(path[:])
             return
         path.append(nums[i])
-        backtracking(i+1, path)
+        backtrack(i+1, path)
         path.pop()
-        backtracking(i+1, path)
+        backtrack(i+1, path)
 
-    backtracking(0, [])
+    res = []
+    backtrack(0, [])
     return res
-    
 
 
 # ============================================================================
@@ -401,7 +395,8 @@ def min_eating_speed(piles, h):
     lo, hi = 1, max(piles)
     while lo < hi:
         mid = lo + (hi - lo) // 2
-        hours = sum([math.ceil(p / mid) for p in piles])
+        from math import ceil
+        hours = sum([ceil(p / mid) for p in piles])
         if hours <= h:
             hi = mid
         else:
