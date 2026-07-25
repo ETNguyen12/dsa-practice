@@ -1,5 +1,5 @@
 """
-07-19-2026 — DSA drills.  Fill in each function from memory, then click Run.
+07-25-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -9,6 +9,7 @@ The test runner + timer live in start.py; you only edit the functions below.
 import os, sys
 from collections import deque
 import heapq
+import math
 
 # start.py sits in this same folder; make it importable, then pull the runner
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +36,7 @@ def reverse_list(head):
 def delete_middle_node(head):
     if not head or not head.next:
         return None
-    
+
     slow = fast = head
     prev = None
     while fast and fast.next:
@@ -53,7 +54,7 @@ def delete_middle_node(head):
 def odd_even_list(head):
     if not head or not head.next:
         return head
-    
+
     odd, even = head, head.next
     even_head = even
     while even and even.next:
@@ -82,6 +83,7 @@ def dfs_iterative(graph, start):
         visited.add(node)
         for neighbor in graph[node]:
             s.append(neighbor)
+
     return res
 
 
@@ -112,8 +114,8 @@ def dfs_recursive(graph, start):
     res = []
 
     def dfs(node: ListNode) -> None:
-        visited.add(node)
         res.append(node)
+        visited.add(node)
         for neighbor in graph[node]:
             if neighbor not in visited:
                 dfs(neighbor)
@@ -122,11 +124,17 @@ def dfs_recursive(graph, start):
     return res
 
 
+
 # ============================================================================
 # 7. Return the k largest numbers from `nums`, sorted descending. Use a heap.
 # ============================================================================
 def top_k(nums, k):
-    return sorted(heapq.nlargest(k, nums), reverse=True)
+    h = []
+    for n in nums:
+        heapq.heappush(h, n)
+        if len(h) > k:
+            heapq.heappop(h)
+    return sorted(h, reverse=True)
 
 
 # ============================================================================
@@ -135,7 +143,7 @@ def top_k(nums, k):
 def binary_search(nums, target):
     lo, hi = 0, len(nums)-1
     while lo <= hi:
-        mid = lo + (hi - lo) // 2
+        mid = lo + (hi-lo) // 2
         if nums[mid] == target:
             return mid
         elif nums[mid] > target:
@@ -152,7 +160,7 @@ def binary_search(nums, target):
 def lower_bound(nums, target):
     lo, hi = 0, len(nums)
     while lo < hi:
-        mid = lo + (hi - lo) // 2
+        mid = lo + (hi-lo) // 2
         if nums[mid] >= target:
             hi = mid
         else:
@@ -177,8 +185,7 @@ def max_window_sum(nums, k):
 #     repeating characters. ("abcabcbb" -> 3, "bbbbb" -> 1)
 # ============================================================================
 def longest_unique_substring(s):
-    seen = set()
-    left, best = 0, 0
+    seen, left, best = set(), 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
@@ -193,7 +200,7 @@ def longest_unique_substring(s):
 # ============================================================================
 def max_depth(root):
     if not root:
-        return 0
+        return 0 
     return 1 + max(max_depth(root.left), max_depth(root.right))
 
 
@@ -267,10 +274,10 @@ def group_anagrams(strs):
 def num_islands(grid):
     if not grid:
         return 0
-    
+
     count, rows, cols = 0, len(grid), len(grid[0])
-    
-    def dfs(r, c) -> None:
+
+    def dfs(r, c):
         if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
             return
         grid[r][c] = 0
@@ -375,7 +382,7 @@ def delete_bst_node(root, key):
 def subsets(nums):
     def backtrack(i, path):
         if i == len(nums):
-            res.append(path[:])
+            res.append(path.copy())
             return
         path.append(nums[i])
         backtrack(i+1, path)
@@ -392,11 +399,10 @@ def subsets(nums):
 #     `h` hours (ceil(pile/speed) hours each). ([3,6,7,11], 8) -> 4.
 # ============================================================================
 def min_eating_speed(piles, h):
-    lo, hi = 1, max(piles)
+    lo, hi = 0, max(piles)
     while lo < hi:
-        mid = lo + (hi - lo) // 2
-        from math import ceil
-        hours = sum([ceil(p / mid) for p in piles])
+        mid = lo + (hi-lo) // 2
+        hours = sum([math.ceil(p / mid) for p in piles])
         if hours <= h:
             hi = mid
         else:
