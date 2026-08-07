@@ -1,5 +1,5 @@
 """
-07-28-2026 — DSA drills.  Fill in each function from memory, then click Run.
+08-06-2026 — DSA drills.  Fill in each function from memory, then click Run.
 The test runner + timer live in start.py; you only edit the functions below.
 
   1. No reference.py until you've been stuck >90 seconds.
@@ -37,14 +37,15 @@ def delete_middle_node(head):
     if not head or not head.next:
         return None
     
-    slow = fast = head
     prev = None
+    slow = fast = head
     while fast and fast.next:
         prev = slow
         slow = slow.next
         fast = fast.next.next
     prev.next = slow.next
     return head
+
 
 # ============================================================================
 # 3. [linked list] Regroup so all ODD positions (1st,3rd,...) come first, then the
@@ -73,6 +74,7 @@ def dfs_iterative(graph, start):
     s = [start]
     visited = set()
     res = []
+
     while s:
         node = s.pop()
         if node in visited:
@@ -90,16 +92,17 @@ def dfs_iterative(graph, start):
 #     `start`, visiting neighbors in list order.
 # ============================================================================
 def bfs(graph, start):
+    visited = {start}
     q = deque([start])
     res = []
-    visited = {start}
+
     while q:
         node = q.popleft()
         res.append(node)
         for nb in graph[node]:
             if nb not in visited:
-                q.append(nb)
                 visited.add(nb)
+                q.append(nb)
     return res
 
 
@@ -107,12 +110,12 @@ def bfs(graph, start):
 # 6. Recursive DFS. Same return contract as bfs (visit order from `start`).
 # ============================================================================
 def dfs_recursive(graph, start):
-    res = []
     visited = set()
+    res = []
 
-    def dfs(node: ListNode) -> None:
-        visited.add(node)
+    def dfs(node):
         res.append(node)
+        visited.add(node)
         for nb in graph[node]:
             if nb not in visited:
                 dfs(nb)
@@ -139,7 +142,7 @@ def top_k(nums, k):
 def binary_search(nums, target):
     lo, hi = 0, len(nums)-1
     while lo <= hi:
-        mid = (lo + hi) // 2
+        mid = lo + (hi - lo) // 2
         if nums[mid] == target:
             return mid
         elif nums[mid] > target:
@@ -156,7 +159,7 @@ def binary_search(nums, target):
 def lower_bound(nums, target):
     lo, hi = 0, len(nums)
     while lo < hi:
-        mid = lo + (hi-lo) // 2
+        mid = lo + (hi - lo) // 2
         if nums[mid] >= target:
             hi = mid
         else:
@@ -182,14 +185,15 @@ def max_window_sum(nums, k):
 # ============================================================================
 def longest_unique_substring(s):
     seen = set()
-    left, best = 0, 0
+    best, left = 0, 0
     for right in range(len(s)):
         while s[right] in seen:
             seen.remove(s[left])
             left += 1
         seen.add(s[right])
-        best = max(best, right-left+1)
+        best = max(best, right - left + 1)
     return best
+
 
 # ============================================================================
 # 12. [tree / DFS recursion] Max depth of a binary tree. Empty tree -> 0.
@@ -234,7 +238,6 @@ def is_valid_bst(root):
         if not (lo < node.val < hi):
             return False
         return valid(node.left, lo, node.val) and valid(node.right, node.val, hi)
-
     return valid(root, float('-inf'), float('inf'))
 
 
@@ -259,7 +262,7 @@ def group_anagrams(strs):
     for s in strs:
         letters = [0] * 26
         for c in s:
-            letters[ord(c)-ord('a')] += 1
+            letters[ord(c) - ord('a')] += 1
         groups.setdefault(tuple(letters), []).append(s)
     return list(groups.values())
 
@@ -272,25 +275,27 @@ def num_islands(grid):
     if not grid:
         return 0
 
-    count, rows, cols = 0, len(grid), len(grid[0])
+    WATER = 0
+    ISLAND = 1
     DIRECTIONS = ((1,0), (-1,0), (0,1), (0,-1))
- 
-    for r in range(rows):
-        for c in range(rows):
-            if grid[r][c] == 0:
-                continue
 
+    count, rows, cols = 0, len(grid), len(grid[0])
+
+    for row in range(rows):
+        for col in range(cols):
+            if grid[row][col] == WATER:
+                continue
             count += 1
-            s = [(r,c)]
+            s = [(row, col)]
             while s:
                 r, c = s.pop()
-                if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != 1:
+                if r < 0 or r >= rows or c < 0 or c >= cols or grid[r][c] != ISLAND:
                     continue
-                grid[r][c] = 0
+                grid[r][c] = WATER
                 for dr, dc in DIRECTIONS:
-                    s.append((r+dr, c+dc))
-    return count
+                    s.append((r + dr, c + dc))
 
+    return count
 
 
 # ============================================================================
@@ -321,19 +326,18 @@ def three_sum(nums):
     return res
 
 
-
 # ============================================================================
 # 19. [monotonic stack] For each day, how many days until a WARMER temperature
 #     (0 if none). [73,74,75,71,69,72,76,73] -> [1,1,4,2,1,1,0,0].
 # ============================================================================
 def daily_temperatures(temperatures):
-    s = []
     res = [0] * len(temperatures)
+    s = []
     for i, t in enumerate(temperatures):
-        while s and temperatures[s[-1]] < t:
-            j = s.pop()
+        while s and s[-1][0] < t:
+            _, j = s.pop()
             res[j] = i - j
-        s.append(i)
+        s.append((t, i))
     return res
 
 
@@ -346,7 +350,7 @@ def merge_intervals(intervals):
     res = []
     for start, end in intervals:
         if res and start <= res[-1][1]:
-            res[-1][1] = max(end, res[-1][1])
+            res[-1][1] = max(res[-1][1], end)
         else:
             res.append([start, end])
     return res
@@ -399,7 +403,7 @@ def subsets(nums):
 #     `h` hours (ceil(pile/speed) hours each). ([3,6,7,11], 8) -> 4.
 # ============================================================================
 def min_eating_speed(piles, h):
-    lo, hi = 1, max(piles)
+    lo, hi = 0, max(piles)
     while lo < hi:
         mid = lo + (hi-lo) // 2
         hours = sum(math.ceil(p / mid) for p in piles)
@@ -416,11 +420,11 @@ def min_eating_speed(piles, h):
 # ============================================================================
 def subarray_sum(nums, k):
     total, count = 0, 0
-    sums = {0: 1}
+    prefix = {0: 1}
     for n in nums:
         total += n
-        count += sums.get(total-k, 0)
-        sums[total] = sums.get(total, 0) + 1
+        count += prefix.get(total-k, 0)
+        prefix[total] = prefix.get(total, 0) + 1
     return count
 
 
@@ -443,7 +447,34 @@ def coin_change(coins, amount):
 #     = [a, b] means b before a. course_schedule(2,[[1,0]]) -> True.
 # ============================================================================
 def course_schedule(num_courses, prerequisites):
-    pass
+    from collections import defaultdict
+    g = defaultdict(list)
+    for course, prereq in prerequisites:
+        g[course].append(prereq)
+
+    UNVISITED = 0
+    VISITING = 1
+    VISITED = 2
+
+    seen = [UNVISITED] * num_courses
+
+    def dfs(node):
+        if seen[node] == VISITED:
+            return True
+        if seen[node] == VISITING:
+            return False
+
+        seen[node] = VISITING
+        for nb in g[node]:
+            if not dfs(nb):
+                return False
+        seen[node] = VISITED
+        return True
+
+    for i in range(num_courses):
+        if not dfs(i):
+            return False
+    return True
 
 
 # ============================================================================
