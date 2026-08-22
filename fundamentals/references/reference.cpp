@@ -17,10 +17,10 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct ListNode {
+struct Node {
     int val;
-    ListNode* next;
-    ListNode(int v = 0, ListNode* n = nullptr) : val(v), next(n) {}
+    Node* next;
+    Node(int v = 0, Node* n = nullptr) : val(v), next(n) {}
 };
 
 struct TreeNode {
@@ -34,11 +34,11 @@ struct TreeNode {
 // ----------------------------------------------------------------------------
 // Reverse a linked list.
 // Forget-point: save curr->next BEFORE you overwrite it.
-ListNode* reverse_list(ListNode* head) {
-    ListNode* prev = nullptr;
-    ListNode* curr = head;
+Node* reverse_list(Node* head) {
+    Node* prev = nullptr;
+    Node* curr = head;
     while (curr) {
-        ListNode* nxt = curr->next;   // save next
+        Node* nxt = curr->next;   // save next
         curr->next = prev;            // flip pointer backward
         prev = curr;                  // advance prev
         curr = nxt;                   // advance curr
@@ -48,11 +48,11 @@ ListNode* reverse_list(ListNode* head) {
 
 // Delete the middle node (floor(n/2)-th, 0-indexed).
 // Forget-point: keep a `prev` one step behind slow to splice it out. Single node -> null.
-ListNode* delete_middle_node(ListNode* head) {
+Node* delete_middle_node(Node* head) {
     if (!head || !head->next) return nullptr;
-    ListNode* prev = nullptr;
-    ListNode* slow = head;
-    ListNode* fast = head;
+    Node* prev = nullptr;
+    Node* slow = head;
+    Node* fast = head;
     while (fast && fast->next) {
         prev = slow;
         slow = slow->next;
@@ -64,11 +64,11 @@ ListNode* delete_middle_node(ListNode* head) {
 
 // Odd/Even linked list (group by POSITION, then reattach).
 // Forget-point: stash even_head BEFORE rewiring; loop while (even && even->next).
-ListNode* odd_even_list(ListNode* head) {
+Node* odd_even_list(Node* head) {
     if (!head || !head->next) return head;
-    ListNode* odd = head;
-    ListNode* even = head->next;
-    ListNode* even_head = even;       // remember where evens start
+    Node* odd = head;
+    Node* even = head->next;
+    Node* even_head = even;       // remember where evens start
     while (even && even->next) {
         odd->next = even->next;
         odd = odd->next;
@@ -469,9 +469,9 @@ int diameter_of_binary_tree(TreeNode* root) {
 
 // Find the middle (second middle on even length).
 // Forget-point: the loop condition (fast && fast->next) makes slow land right.
-ListNode* find_middle(ListNode* head) {
-    ListNode* slow = head;
-    ListNode* fast = head;
+Node* find_middle(Node* head) {
+    Node* slow = head;
+    Node* fast = head;
     while (fast && fast->next) {
         slow = slow->next;
         fast = fast->next->next;
@@ -481,9 +481,9 @@ ListNode* find_middle(ListNode* head) {
 
 // Detect a cycle.
 // Forget-point: same fast/slow skeleton; they collide iff there's a loop.
-bool has_cycle(ListNode* head) {
-    ListNode* slow = head;
-    ListNode* fast = head;
+bool has_cycle(Node* head) {
+    Node* slow = head;
+    Node* fast = head;
     while (fast && fast->next) {
         slow = slow->next;
         fast = fast->next->next;

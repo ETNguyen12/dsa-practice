@@ -12,12 +12,12 @@
 using namespace std;
 
 // ---- test helpers ----------------------------------------------------------
-static ListNode* _build(vector<int> vals) {
-    ListNode dummy; ListNode* cur = &dummy;
-    for (int v : vals) { cur->next = new ListNode(v); cur = cur->next; }
+static Node* _build(vector<int> vals) {
+    Node dummy; Node* cur = &dummy;
+    for (int v : vals) { cur->next = new Node(v); cur = cur->next; }
     return dummy.next;
 }
-static vector<int> _toL(ListNode* h) { vector<int> o; while (h) { o.push_back(h->val); h = h->next; } return o; }
+static vector<int> _toL(Node* h) { vector<int> o; while (h) { o.push_back(h->val); h = h->next; } return o; }
 static const int NIL = -1000;
 static TreeNode* _buildT(vector<int> vals) {
     if (vals.empty() || vals[0] == NIL) return nullptr;

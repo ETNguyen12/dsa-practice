@@ -9,9 +9,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct ListNode {
-    int val; ListNode* next;
-    ListNode(int v = 0, ListNode* n = nullptr) : val(v), next(n) {}
+struct Node {
+    int val; Node* next;
+    Node(int v = 0, Node* n = nullptr) : val(v), next(n) {}
 };
 struct TreeNode {
     int val; TreeNode* left; TreeNode* right;
@@ -21,21 +21,21 @@ struct TreeNode {
 // ============================================================================
 // 1. Reverse a linked list. Return the new head.
 // ============================================================================
-ListNode* reverse_list(ListNode* head) {
+Node* reverse_list(Node* head) {
     return nullptr; // your code
 }
 
 // ============================================================================
 // 2. Delete the middle node (floor(n/2)-th, 0-indexed). [1,2,3,4]->[1,2,4]. [1]->[].
 // ============================================================================
-ListNode* delete_middle_node(ListNode* head) {
+Node* delete_middle_node(Node* head) {
     return nullptr; // your code
 }
 
 // ============================================================================
 // 3. Odd/Even list: regroup odd POSITIONS first, then even. [1,2,3,4,5]->[1,3,5,2,4].
 // ============================================================================
-ListNode* odd_even_list(ListNode* head) {
+Node* odd_even_list(Node* head) {
     return nullptr; // your code
 }
 
