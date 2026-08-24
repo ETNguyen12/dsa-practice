@@ -1,0 +1,260 @@
+from abc import ABC, abstractmethod
+import random
+
+CUSTOMER = 'Customer'
+EMPLOYEE = 'Employee'
+
+NEW_CUSTOMER = 1
+EXISTING_ACCOUNT = 2
+GET_ACCOUNT = 3
+DEPOSIT = 4
+WITHDRAWAL = 5
+BALANCE = 6
+LOGOUT = 8
+SHUTDOWN = 9
+
+
+# ---------- Domain layer (no input()/print() in here) ----------
+
+class User(ABC):
+    role: str  # each subclass defines this
+
+    def __init__(self, name: str, email: str, password: str, age: int):
+        self.name = name
+        self.email = email
+        self.password = password
+        self.age = age
+
+    @abstractmethod
+    def get_role(self) -> str:
+        ...
+
+
+class Employee(User):
+    role = EMPLOYEE
+
+    def get_role(self) -> str:
+        return self.role
+
+
+class Customer(User):
+    role = CUSTOMER
+
+    def __init__(self, name: str, email: str, password: str, age: int):
+        super().__init__(name, email, password, age)
+        self.account = None
+
+    def get_role(self) -> str:
+        return self.role
+
+
+class Account:
+    def __init__(self, id: int, customer: Customer, representative: Employee, deposit: float):
+        if deposit < 0:
+            raise ValueError('Initial deposit cannot be negative.')
+        self.id = id
+        self.customer = customer
+        self.representative = representative
+        self.balance = deposit
+
+    def deposit(self, amount: float) -> None:
+        if amount < 0:
+            raise ValueError('Deposit amount cannot be negative.')
+        self.balance += amount
+
+    def withdraw(self, amount: float) -> bool:
+        if amount < 0:
+            raise ValueError('Withdrawal amount cannot be negative.')
+        if amount > self.balance:
+            return False
+        self.balance -= amount
+        return True
+
+    def get_balance(self) -> float:
+        return self.balance
+
+    def __str__(self) -> str:
+        return (f'[Account ID: {self.id}] '
+                f'{self.customer.name} ({self.customer.email}) - '
+                f'${self.balance:.2f}')
+
+
+class Bank:
+    def __init__(self):
+        self.users = {}
+        self.accounts = {}
+
+    def register_new_user(self, role: str, name: str, email: str, password: str, age: int) -> User:
+        if email in self.users:
+            raise ValueError(f'"{email}" is already registered.')
+        user = Employee(name, email, password, age) if role == EMPLOYEE \
+            else Customer(name, email, password, age)
+        self.users[email] = user
+        return user
+
+    def register_new_account(self, customer: Customer, representative: Employee, deposit: float) -> Account:
+        new_id = random.randint(10000, 99999)
+        while new_id in self.accounts:
+            new_id = random.randint(10000, 99999)
+        account = Account(new_id, customer, representative, deposit)
+        customer.account = account
+        self.accounts[new_id] = account
+        return account
+
+    def register_customer_with_account(self, name: str, email: str, password: str, age: int,
+                                       representative: Employee, deposit: float) -> Account:
+        # One step, rolls back the user if account creation fails, so no orphans.
+        customer = self.register_new_user(CUSTOMER, name, email, password, age)
+        try:
+            return self.register_new_account(customer, representative, deposit)
+        except Exception:
+            del self.users[customer.email]
+            raise
+
+    def get_account(self, id: int) -> Account:
+        account = self.accounts.get(id)
+        if account is None:
+            raise ValueError('That account ID does not exist.')
+        return account
+
+    def authenticate(self, role: str, email: str, password: str) -> User:
+        user = self.users.get(email)
+        if user is None:
+            raise ValueError(f'No user found for "{email}".')
+        if user.role != role:
+            raise ValueError(f'This user cannot log in as "{role}".')
+        if user.password != password:
+            raise ValueError('Incorrect password.')
+        return user
+
+
+# ---------- Presentation helpers ----------
+
+def prompt_int(message: str) -> int:
+    while True:
+        try:
+            return int(input(message))
+        except ValueError:
+            print('Please enter a valid whole number.')
+
+
+def prompt_float(message: str) -> float:
+    while True:
+        try:
+            return float(input(message))
+        except ValueError:
+            print('Please enter a valid number.')
+
+
+def prompt_nonneg_amount(message: str) -> float:
+    while True:
+        amount = prompt_float(message)
+        if amount < 0:
+            print('Amount cannot be negative.')
+        else:
+            return amount
+
+
+# ---------- Menu / CLI layer ----------
+
+def run_account_session(account: Account) -> None:
+    while True:
+        print()
+        print(f'{DEPOSIT} - Deposit')
+        print(f'{WITHDRAWAL} - Withdraw')
+        print(f'{BALANCE} - Show balance')
+        print(f'{LOGOUT} - Log out of account')
+        choice = prompt_int('')
+        print()
+
+        if choice == DEPOSIT:
+            amount = prompt_nonneg_amount('Deposit amount: ')
+            account.deposit(amount)
+            print(account)
+        elif choice == WITHDRAWAL:
+            while True:
+                print(account)
+                amount = prompt_nonneg_amount('Withdrawal amount: ')
+                if account.withdraw(amount):
+                    print(account)
+                    break
+                print('Insufficient funds.')
+        elif choice == BALANCE:
+            print(account)
+        elif choice == LOGOUT:
+            return
+        else:
+            print('Not a valid option.')
+
+
+def main() -> None:
+    bank = Bank()
+    employee1 = bank.register_new_user(EMPLOYEE, 'Ethan Nguyen', 'ethan@gmail.com', 'password1', 23)
+    bank.register_new_user(EMPLOYEE, 'Kayla Perez', 'kayla@gmail.com', 'password2', 21)
+    bank.register_customer_with_account('Vy Nguyen', 'vy@gmail.com', 'password3', 50, employee1, 0)
+
+    curr_employee = None
+
+    while True:
+        while curr_employee is None:
+            email = input('Employee email: ')
+            password = input('Employee password: ')
+            try:
+                curr_employee = bank.authenticate(EMPLOYEE, email, password)
+            except ValueError as e:
+                print(e)
+
+        print()
+        print(f'{NEW_CUSTOMER} - Register new customer')
+        print(f'{EXISTING_ACCOUNT} - Access an existing account')
+        print(f'{GET_ACCOUNT} - Look up a customer account ID')
+        print(f'{LOGOUT} - Log out')
+        print(f'{SHUTDOWN} - Shut down')
+        decision = prompt_int('')
+        print()
+
+        if decision == NEW_CUSTOMER:
+            name = input('Full name: ')
+            email = input('Email: ')
+            password = input('Password: ')
+            age = prompt_int('Age: ')
+            deposit = prompt_nonneg_amount('Initial deposit: ')
+            try:
+                account = bank.register_customer_with_account(
+                    name, email, password, age, curr_employee, deposit)
+                print(account)
+            except ValueError as e:
+                print(e)
+
+        elif decision == EXISTING_ACCOUNT:
+            account_id = prompt_int('Account ID: ')
+            try:
+                account = bank.get_account(account_id)
+            except ValueError as e:
+                print(e)
+                continue
+            run_account_session(account)
+
+        elif decision == GET_ACCOUNT:
+            email = input('Customer email: ')
+            password = input('Customer password: ')
+            try:
+                customer = bank.authenticate(CUSTOMER, email, password)
+            except ValueError as e:
+                print(e)
+                continue
+            if customer.account is None:
+                print(f'{customer.name} has no account yet.')
+            else:
+                print(customer.account)
+
+        elif decision == LOGOUT:
+            curr_employee = None
+        elif decision == SHUTDOWN:
+            break
+        else:
+            print('Not a valid option.')
+
+
+if __name__ == '__main__':
+    main()

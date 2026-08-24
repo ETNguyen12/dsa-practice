@@ -1,0 +1,1 @@
+print(f'[Account ID: {account_id}] {customer.name} has deposited ${amount}.')
